@@ -25,3 +25,14 @@ export function toast(message, kind = 'ok') {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.hidden = true; }, kind === 'error' ? 5000 : 1800);
 }
+
+export function shorten(text, max = 90) {
+  return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
+}
+
+export function statCard(label, value, sub) {
+  return h('div', { class: 'card' },
+    h('div', { class: 'label' }, label),
+    h('div', { class: 'value' }, value),
+    sub && h('div', { class: 'sub' }, sub));
+}

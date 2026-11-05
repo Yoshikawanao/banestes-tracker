@@ -39,3 +39,54 @@ export const goalCompliance = (realizado, planejado) => (planejado > 0 ? (realiz
 
 const nf = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 });
 export const formatPercent = p => (p == null ? 'Sem dados' : `${nf.format(p)}%`);
+
+// ---------- Sessões de estudo ----------
+
+const pad = n => String(n).padStart(2, '0');
+
+// Data local (não UTC) no formato AAAA-MM-DD.
+export const toLocalDateKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+export const todayKey = () => toLocalDateKey(new Date());
+
+export function formatDateBR(key) {
+  const [y, m, d] = key.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// Converte horas + minutos digitados em minutos. Lança Error com mensagem em pt-BR se inválido.
+export function parseDuration(hours, minutes) {
+  const h = hours === '' || hours == null ? 0 : Number(hours);
+  const m = minutes === '' || minutes == null ? 0 : Number(minutes);
+  if (!Number.isInteger(h) || !Number.isInteger(m) || h < 0 || m < 0) throw new Error('Informe horas e minutos com números inteiros.');
+  if (m > 59) throw new Error('Os minutos devem ficar entre 0 e 59.');
+  const total = h * 60 + m;
+  if (total <= 0) throw new Error('A duração deve ser maior que zero.');
+  if (total > 24 * 60) throw new Error('A duração máxima por sessão é de 24 horas.');
+  return total;
+}
+
+export function formatDuration(min) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (h === 0) return `${m}min`;
+  return m === 0 ? `${h}h` : `${h}h${pad(m)}`;
+}
+
+export const sumMinutes = sessions => sessions.reduce((n, s) => n + (s.minutes || 0), 0);
+
+// Dias estudados: datas locais distintas com sessões registradas.
+export const distinctDays = sessions => new Set(sessions.map(s => s.date)).size;
+
+// Semana de segunda a domingo que contém a data informada.
+export function weekRange(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() - ((dt.getDay() + 6) % 7));
+  const start = toLocalDateKey(dt);
+  dt.setDate(dt.getDate() + 6);
+  return [start, toLocalDateKey(dt)];
+}
+
+export function sessionsInRange(sessions, from, to) {
+  return sessions.filter(s => (!from || s.date >= from) && (!to || s.date <= to));
+}

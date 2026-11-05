@@ -2,15 +2,15 @@ import { h, toast } from './ui.js';
 import {
   configured, auth, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from './firebase.js';
-import { loadEditalProgress } from './storage.js';
+import { loadEditalProgress, loadSessions } from './storage.js';
 import { renderDashboard } from './dashboard.js';
 import { renderEdital } from './edital.js';
+import { renderSessions } from './sessions.js';
 
 const $ = id => document.getElementById(id);
-const ctx = { user: null, edital: null, progress: {} };
+const ctx = { user: null, edital: null, progress: {}, sessions: [] };
 
 const PLACEHOLDERS = {
-  estudos: ['Estudos', 'Sessões, cronômetro e histórico chegam nas Etapas 3 e 4.'],
   desempenho: ['Desempenho', 'Questões, gráficos e simulados chegam nas Etapas 5, 7 e 8.'],
   revisoes: ['Revisões', 'Caderno de erros e flashcards chegam na Etapa 9.'],
   planejamento: ['Planejamento', 'Metas e recomendações chegam na Etapa 10.']
@@ -30,6 +30,7 @@ function route() {
     if (a.dataset.route === name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   if (name === 'edital') renderEdital(view, ctx);
+  else if (name === 'estudos') renderSessions(view, ctx);
   else if (PLACEHOLDERS[name]) {
     const [title, text] = PLACEHOLDERS[name];
     view.replaceChildren(h('div', { class: 'page-head' }, h('h1', {}, title)), h('div', { class: 'empty' }, text));
@@ -43,6 +44,7 @@ async function enter(user) {
   try {
     ctx.edital = await (await fetch('data/edital.json', { cache: 'no-cache' })).json();
     ctx.progress = await loadEditalProgress(user.uid);
+    ctx.sessions = await loadSessions(user.uid);
   } catch (e) {
     console.error(e);
     toast('Erro ao carregar os dados. Verifique as regras do Firestore.', 'error');
