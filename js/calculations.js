@@ -132,3 +132,65 @@ export function summarizeQuestions(rows) {
   const correct = rows.reduce((n, r) => n + (r.correct || 0), 0);
   return { total, correct, wrong: total - correct, rate: hitRate(correct, total) };
 }
+
+// ---------- Dashboard e calendário ----------
+
+const keyToDate = key => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d); };
+
+export function monthRange(key) {
+  const d = keyToDate(key);
+  return [toLocalDateKey(new Date(d.getFullYear(), d.getMonth(), 1)), toLocalDateKey(new Date(d.getFullYear(), d.getMonth() + 1, 0))];
+}
+
+// Últimas n semanas (segunda a domingo), da mais antiga para a atual.
+export function lastNWeeks(key, n) {
+  const [start] = weekRange(key);
+  const base = keyToDate(start);
+  return Array.from({ length: n }, (_, i) => {
+    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() - 7 * (n - 1 - i));
+    return weekRange(toLocalDateKey(d));
+  });
+}
+
+export function minutesByDay(sessions) {
+  const map = new Map();
+  for (const s of sessions) map.set(s.date, (map.get(s.date) || 0) + (s.minutes || 0));
+  return map;
+}
+
+// Intensidade do calendário (volume de estudo no dia, não qualidade).
+export const intensityLevel = min => (min >= 120 ? 4 : min >= 60 ? 3 : min >= 30 ? 2 : min > 0 ? 1 : 0);
+
+// Semanas (segunda a domingo) de um mês; dias fora do mês ficam null. month0: 0 a 11.
+export function monthMatrix(year, month0) {
+  const offset = (new Date(year, month0, 1).getDay() + 6) % 7;
+  const days = new Date(year, month0 + 1, 0).getDate();
+  const cells = [...Array(offset).fill(null), ...Array.from({ length: days }, (_, i) => toLocalDateKey(new Date(year, month0, i + 1)))];
+  while (cells.length % 7) cells.push(null);
+  return Array.from({ length: cells.length / 7 }, (_, w) => cells.slice(w * 7, w * 7 + 7));
+}
+
+export function shiftMonth(year, month0, delta) {
+  const d = new Date(year, month0 + delta, 1);
+  return { year: d.getFullYear(), month0: d.getMonth() };
+}
+
+// Média por dia estudado (dias com ao menos uma sessão). null quando não há sessões.
+export function averagePerStudyDay(sessions) {
+  const days = distinctDays(sessions);
+  return days ? sumMinutes(sessions) / days : null;
+}
+
+export function minutesByKey(sessions, keyFn) {
+  const map = new Map();
+  for (const s of sessions) { const k = keyFn(s); map.set(k, (map.get(k) || 0) + (s.minutes || 0)); }
+  return map;
+}
+
+// Aproveitamento por semana, com o tamanho da amostra de cada uma.
+export function weeklyHitRates(questions, ranges) {
+  return ranges.map(([from, to]) => {
+    const rows = questions.filter(q => q.date >= from && q.date <= to);
+    return { from, to, ...summarizeQuestions(rows) };
+  });
+}

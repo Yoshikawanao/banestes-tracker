@@ -4,6 +4,7 @@ import { flattenLeaves, countLeaves, percent, coverage, hitRate, blockGrade, fin
 import { toLocalDateKey, formatDateBR, parseDuration, formatDuration, sumMinutes, distinctDays, weekRange, sessionsInRange } from '../js/calculations.js';
 import { elapsedMs, pauseTimer, resumeTimer, msToMinutes, formatClock } from '../js/calculations.js';
 import { parseQuestionCounts, summarizeQuestions } from '../js/calculations.js';
+import { monthRange, lastNWeeks, minutesByDay, intensityLevel, monthMatrix, shiftMonth, averagePerStudyDay, minutesByKey, weeklyHitRates } from '../js/calculations.js';
 
 const tree = [
   { id: 'a', title: 'A', children: [{ id: 'a1', title: 'A1' }, { id: 'a2', title: 'A2' }] },
@@ -94,4 +95,29 @@ const qs = summarizeQuestions([{ total: 20, correct: 14 }, { total: 10, correct:
 assert.deepEqual(qs, { total: 30, correct: 20, wrong: 10, rate: (20 / 30) * 100 });
 assert.equal(summarizeQuestions([]).rate, null);                                      // sem registros: Sem dados, não 0%
 assert.equal(formatPercent(summarizeQuestions([{ total: 5, correct: 0 }]).rate), '0%'); // 0 acertos com questões feitas é 0% real
+
+// ---------- Dashboard e calendário ----------
+assert.deepEqual(monthRange('2026-11-05'), ['2026-11-01', '2026-11-30']);
+assert.deepEqual(monthRange('2028-02-10'), ['2028-02-01', '2028-02-29']);          // ano bissexto
+assert.deepEqual(lastNWeeks('2026-11-05', 3), [['2026-10-19', '2026-10-25'], ['2026-10-26', '2026-11-01'], ['2026-11-02', '2026-11-08']]);
+assert.equal(lastNWeeks('2026-11-05', 8).length, 8);
+assert.equal(intensityLevel(0), 0); assert.equal(intensityLevel(1), 1); assert.equal(intensityLevel(29), 1);
+assert.equal(intensityLevel(30), 2); assert.equal(intensityLevel(59), 2); assert.equal(intensityLevel(60), 3);
+assert.equal(intensityLevel(119), 3); assert.equal(intensityLevel(120), 4);
+assert.equal(minutesByDay(ss).get('2026-11-02'), 90);
+const nov = monthMatrix(2026, 10);                                                  // novembro/2026 começa no domingo
+assert.equal(nov.length, 6);
+assert.equal(nov[0].filter(Boolean).length, 1);
+assert.equal(nov[0][6], '2026-11-01');
+assert.equal(nov[5][0], '2026-11-30');
+assert.equal(nov.flat().filter(Boolean).length, 30);
+assert.deepEqual(shiftMonth(2026, 0, -1), { year: 2025, month0: 11 });
+assert.deepEqual(shiftMonth(2026, 11, 1), { year: 2027, month0: 0 });
+assert.equal(averagePerStudyDay([]), null);
+assert.ok(Math.abs(averagePerStudyDay(ss) - 155 / 3) < 1e-9);
+const byDisc = minutesByKey([{ disciplineId: 'a', minutes: 10 }, { disciplineId: 'b', minutes: 5 }, { disciplineId: 'a', minutes: 20 }], s => s.disciplineId);
+assert.equal(byDisc.get('a'), 30); assert.equal(byDisc.get('b'), 5);
+const wr = weeklyHitRates([{ date: '2026-11-03', total: 10, correct: 7 }, { date: '2026-10-28', total: 5, correct: 5 }], [['2026-10-26', '2026-11-01'], ['2026-11-02', '2026-11-08'], ['2026-11-09', '2026-11-15']]);
+assert.equal(wr[0].rate, 100); assert.equal(wr[1].rate, 70); assert.equal(wr[1].total, 10);
+assert.equal(wr[2].rate, null);                                                    // semana sem questões: Sem dados
 console.log('Todos os testes passaram.');
