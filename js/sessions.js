@@ -3,9 +3,8 @@ import {
   flattenLeaves, sumMinutes, distinctDays, formatDuration, formatDateBR, todayKey, parseDuration
 } from './calculations.js';
 import { saveSession, deleteSession } from './storage.js';
-
-const ACTIVITIES = [['teoria', 'Teoria'], ['questoes', 'Questões'], ['revisao', 'Revisão'], ['simulado', 'Simulado'], ['leitura', 'Leitura'], ['outros', 'Outros']];
-const actLabel = v => ACTIVITIES.find(a => a[0] === v)?.[1] ?? v;
+import { ACTIVITIES, actLabel } from './constants.js';
+import { renderTimer } from './timer.js';
 
 export function renderSessions(root, ctx) {
   const discs = ctx.edital.disciplines;
@@ -15,6 +14,7 @@ export function renderSessions(root, ctx) {
 
   const state = { editing: null, f: { from: '', to: '', disc: 'all', topic: 'all', act: 'all' } };
 
+  const timerBox = h('div', { class: 'card' });
   const formBox = h('div', { class: 'card' });
   const summary = h('div', { class: 'grid' });
   const listEl = h('ul', { class: 'sessions' });
@@ -83,7 +83,7 @@ export function renderSessions(root, ctx) {
         h('button', { type: 'submit', class: 'btn primary', id: 's-save' }, s ? 'Salvar alterações' : 'Registrar sessão'),
         s && h('button', { type: 'button', class: 'btn ghost', onclick: () => { state.editing = null; renderForm(); } }, 'Cancelar')));
     const saveBtn = form.querySelector('#s-save');
-    formBox.replaceChildren(h('h2', {}, s ? 'Editar sessão' : 'Registrar sessão'), form);
+    formBox.replaceChildren(h('h2', {}, s ? 'Editar sessão' : 'Registrar manualmente'), form);
   }
 
   // ---------- Histórico ----------
@@ -175,9 +175,11 @@ export function renderSessions(root, ctx) {
 
   root.replaceChildren(
     h('div', { class: 'page-head' }, h('h1', {}, 'Estudos'),
-      h('p', {}, 'Registre o que você estudou e consulte o histórico. O cronômetro chega na próxima etapa.')),
-    formBox,
+      h('p', {}, 'Use o cronômetro enquanto estuda ou registre uma sessão manualmente.')),
+    timerBox,
+    h('div', { class: 'section-tight' }, formBox),
     h('div', { class: 'section' }, h('h2', {}, 'Histórico'), filters, h('div', { class: 'section-tight' }, summary), listEl));
+  renderTimer(timerBox, ctx, () => renderList());
   renderForm();
   renderList();
 }

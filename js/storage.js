@@ -1,5 +1,5 @@
 // Única camada que fala com o Firestore. Dados ficam em users/{uid}/...
-import { db, collection, doc, getDocs, setDoc, deleteDoc, serverTimestamp } from './firebase.js';
+import { db, collection, doc, getDoc, getDocs, setDoc, deleteDoc, serverTimestamp } from './firebase.js';
 
 // ---- Edital: progresso por assunto ----
 export async function loadEditalProgress(uid) {
@@ -37,3 +37,14 @@ export async function saveSession(uid, session) {
 export function deleteSession(uid, id) {
   return deleteDoc(doc(db, 'users', uid, 'sessions', id));
 }
+
+// ---- Cronômetro: uma única sessão ativa por usuário (vale para todos os dispositivos) ----
+const timerRef = uid => doc(db, 'users', uid, 'timer', 'active');
+
+export async function loadTimer(uid) {
+  const snap = await getDoc(timerRef(uid));
+  return snap.exists() ? snap.data() : null;
+}
+
+export const saveTimer = (uid, timer) => setDoc(timerRef(uid), timer);
+export const clearTimer = uid => deleteDoc(timerRef(uid));

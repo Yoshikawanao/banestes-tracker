@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { flattenLeaves, countLeaves, percent, coverage, hitRate, blockGrade, finalGrade, goalCompliance, formatPercent } from '../js/calculations.js';
 import { toLocalDateKey, formatDateBR, parseDuration, formatDuration, sumMinutes, distinctDays, weekRange, sessionsInRange } from '../js/calculations.js';
+import { elapsedMs, pauseTimer, resumeTimer, msToMinutes, formatClock } from '../js/calculations.js';
 
 const tree = [
   { id: 'a', title: 'A', children: [{ id: 'a1', title: 'A1' }, { id: 'a2', title: 'A2' }] },
@@ -59,4 +60,22 @@ assert.deepEqual(weekRange('2026-11-08'), ['2026-11-02', '2026-11-08']);   // do
 assert.deepEqual(weekRange('2026-11-09'), ['2026-11-09', '2026-11-15']);
 assert.equal(sessionsInRange(ss, '2026-11-02', '2026-11-08').length, 3);
 assert.equal(sumMinutes([]), 0);
+
+// ---------- Cronômetro ----------
+const MIN = 60000;
+let tm = { status: 'running', accumulatedMs: 0, lastResumeMs: 0, startedAtMs: 0 };
+assert.equal(elapsedMs(tm, 10 * MIN), 10 * MIN);
+tm = pauseTimer(tm, 10 * MIN);                       // pausa aos 10 min
+assert.equal(tm.status, 'paused');
+assert.equal(elapsedMs(tm, 30 * MIN), 10 * MIN);     // pausa não conta
+tm = resumeTimer(tm, 30 * MIN);                      // volta aos 30 min
+assert.equal(elapsedMs(tm, 35 * MIN), 15 * MIN);     // 10 + 5
+assert.equal(pauseTimer(pauseTimer(tm, 40 * MIN), 50 * MIN).accumulatedMs, 20 * MIN); // pausar de novo não duplica
+assert.equal(resumeTimer(tm, 99 * MIN), tm);          // retomar quem já roda não muda nada
+assert.equal(elapsedMs({ status: 'running', accumulatedMs: 0, lastResumeMs: 5000 }, 1000), 0); // relógio nunca negativo
+assert.equal(msToMinutes(29999), 0);
+assert.equal(msToMinutes(30000), 1);
+assert.equal(msToMinutes(90 * MIN), 90);
+assert.equal(formatClock(3725000), '01:02:05');
+assert.equal(formatClock(0), '00:00:00');
 console.log('Todos os testes passaram.');

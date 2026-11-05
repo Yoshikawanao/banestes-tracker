@@ -90,3 +90,23 @@ export function weekRange(key) {
 export function sessionsInRange(sessions, from, to) {
   return sessions.filter(s => (!from || s.date >= from) && (!to || s.date <= to));
 }
+
+// ---------- Cronômetro ----------
+// O tempo é sempre calculado a partir de timestamps persistidos (nunca de um contador em memória):
+// tempo = acumulado das partes já encerradas + (agora - último retorno), só se estiver rodando.
+
+export const elapsedMs = (t, now) =>
+  (t.accumulatedMs || 0) + (t.status === 'running' && t.lastResumeMs != null ? Math.max(0, now - t.lastResumeMs) : 0);
+
+export const pauseTimer = (t, now) =>
+  (t.status === 'running' ? { ...t, status: 'paused', accumulatedMs: elapsedMs(t, now), lastResumeMs: null } : t);
+
+export const resumeTimer = (t, now) =>
+  (t.status === 'paused' ? { ...t, status: 'running', lastResumeMs: now } : t);
+
+export const msToMinutes = ms => Math.round(ms / 60000);
+
+export function formatClock(ms) {
+  const s = Math.floor(Math.max(0, ms) / 1000);
+  return `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
+}

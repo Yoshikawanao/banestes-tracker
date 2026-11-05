@@ -16,5 +16,5 @@ export const db = initializeFirestore(app, {
 
 export { onAuthStateChanged, signInWithEmailAndPassword, signOut }
   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-export { collection, doc, getDocs, setDoc, deleteDoc, serverTimestamp }
+export { collection, doc, getDoc, getDocs, setDoc, deleteDoc, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';

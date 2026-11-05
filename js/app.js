@@ -2,13 +2,14 @@ import { h, toast } from './ui.js';
 import {
   configured, auth, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from './firebase.js';
-import { loadEditalProgress, loadSessions } from './storage.js';
+import { loadEditalProgress, loadSessions, loadTimer } from './storage.js';
 import { renderDashboard } from './dashboard.js';
 import { renderEdital } from './edital.js';
 import { renderSessions } from './sessions.js';
+import { stopTick } from './timer.js';
 
 const $ = id => document.getElementById(id);
-const ctx = { user: null, edital: null, progress: {}, sessions: [] };
+const ctx = { user: null, edital: null, progress: {}, sessions: [], timer: null };
 
 const PLACEHOLDERS = {
   desempenho: ['Desempenho', 'Questões, gráficos e simulados chegam nas Etapas 5, 7 e 8.'],
@@ -24,6 +25,7 @@ const ERRORS = {
 };
 
 function route() {
+  stopTick();
   const name = (location.hash.replace(/^#\//, '') || 'dashboard').split('/')[0];
   const view = $('view');
   document.querySelectorAll('#nav a').forEach(a => {
@@ -45,6 +47,7 @@ async function enter(user) {
     ctx.edital = await (await fetch('data/edital.json', { cache: 'no-cache' })).json();
     ctx.progress = await loadEditalProgress(user.uid);
     ctx.sessions = await loadSessions(user.uid);
+    ctx.timer = await loadTimer(user.uid);
   } catch (e) {
     console.error(e);
     toast('Erro ao carregar os dados. Verifique as regras do Firestore.', 'error');

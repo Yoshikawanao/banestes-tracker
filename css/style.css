@@ -128,3 +128,10 @@ main:focus{outline:none}
   .form-grid{grid-template-columns:1fr}
   .session{flex-direction:column}
 }
+
+/* cronômetro */
+.clock{font-size:clamp(2.4rem,9vw,3.8rem);font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1;margin:.4rem 0 .6rem}
+.clock.paused{color:var(--warn)}
+.timer-state{font-weight:600;color:var(--muted)}
+.timer-info{display:grid;gap:.1rem;margin-bottom:.4rem}
+.notice{display:block;text-decoration:none;background:var(--green-soft);border:1px solid var(--green);border-radius:var(--radius);padding:.7rem 1rem;margin-bottom:1rem}
