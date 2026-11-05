@@ -48,3 +48,22 @@ export async function loadTimer(uid) {
 
 export const saveTimer = (uid, timer) => setDoc(timerRef(uid), timer);
 export const clearTimer = uid => deleteDoc(timerRef(uid));
+
+// ---- Questões resolvidas ----
+export async function loadQuestions(uid) {
+  const snap = await getDocs(collection(db, 'users', uid, 'questions'));
+  return snap.docs.map(d => {
+    const { updatedAt, ...data } = d.data();
+    return { id: d.id, ...data };
+  });
+}
+
+// Cria (sem id) ou atualiza (com id). Retorna o id.
+export async function saveQuestion(uid, record) {
+  const { id, ...data } = record;
+  const ref = id ? doc(db, 'users', uid, 'questions', id) : doc(collection(db, 'users', uid, 'questions'));
+  await setDoc(ref, { ...data, updatedAt: serverTimestamp() }, { merge: true });
+  return ref.id;
+}
+
+export const deleteQuestion = (uid, id) => deleteDoc(doc(db, 'users', uid, 'questions', id));

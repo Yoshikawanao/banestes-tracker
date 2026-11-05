@@ -1,5 +1,5 @@
 import { h, toast } from './ui.js';
-import { isLeaf, flattenLeaves, coverage, formatPercent } from './calculations.js';
+import { isLeaf, flattenLeaves, coverage, formatPercent, summarizeQuestions } from './calculations.js';
 import { saveEditalProgress } from './storage.js';
 
 const TRIPLE = [['nao_iniciado', 'Não iniciado', '○'], ['em_andamento', 'Em andamento', '◐'], ['concluido', 'Concluído', '●']];
@@ -77,13 +77,17 @@ export function renderEdital(root, ctx) {
       h('label', { for: mId }, 'Domínio percebido'),
       h('select', { id: mId, onchange: e => patch(leaf, chips, { mastery: Number(e.target.value) }) },
         MASTERY.map(([v, label]) => h('option', { value: v, selected: v === (p().mastery ?? 0) }, label))));
+    const qs = summarizeQuestions((ctx.questions || []).filter(r => r.topicId === leaf.id));
+    const qInfo = h('div', { class: 'wide muted' }, qs.total
+      ? `Questões deste assunto: ${qs.total} resolvidas, ${qs.correct} acertos (${formatPercent(qs.rate)}).`
+      : 'Questões deste assunto: Sem dados.');
     const nId = `${leaf.id}-notes`;
     const notes = h('div', { class: 'wide' },
       h('label', { for: nId }, 'Observações'),
       h('textarea', { id: nId, onchange: e => patch(leaf, chips, { notes: e.target.value }) }, p().notes || ''));
     return h('details', { class: 'leaf' },
       h('summary', {}, h('span', { class: 'leaf-title' }, leaf.title), chips),
-      h('div', { class: 'leaf-form' }, selects, mastery, notes));
+      h('div', { class: 'leaf-form' }, selects, mastery, qInfo, notes));
   }
 
   function renderTopics(topics) {

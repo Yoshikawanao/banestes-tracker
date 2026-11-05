@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { flattenLeaves, countLeaves, percent, coverage, hitRate, blockGrade, finalGrade, goalCompliance, formatPercent } from '../js/calculations.js';
 import { toLocalDateKey, formatDateBR, parseDuration, formatDuration, sumMinutes, distinctDays, weekRange, sessionsInRange } from '../js/calculations.js';
 import { elapsedMs, pauseTimer, resumeTimer, msToMinutes, formatClock } from '../js/calculations.js';
+import { parseQuestionCounts, summarizeQuestions } from '../js/calculations.js';
 
 const tree = [
   { id: 'a', title: 'A', children: [{ id: 'a1', title: 'A1' }, { id: 'a2', title: 'A2' }] },
@@ -78,4 +79,19 @@ assert.equal(msToMinutes(30000), 1);
 assert.equal(msToMinutes(90 * MIN), 90);
 assert.equal(formatClock(3725000), '01:02:05');
 assert.equal(formatClock(0), '00:00:00');
+
+// ---------- Questões ----------
+assert.deepEqual(parseQuestionCounts('20', '14'), { total: 20, correct: 14, wrong: 6 });
+assert.deepEqual(parseQuestionCounts(10, 0), { total: 10, correct: 0, wrong: 10 });   // zero acertos é válido
+assert.throws(() => parseQuestionCounts('', '3'), /total de questões/);
+assert.throws(() => parseQuestionCounts('10', ''), /número de acertos/);
+assert.throws(() => parseQuestionCounts('10', '11'), /não podem ser maiores/);
+assert.throws(() => parseQuestionCounts('0', '0'), /pelo menos 1/);
+assert.throws(() => parseQuestionCounts('10.5', '3'), /inteiros/);
+assert.throws(() => parseQuestionCounts('10', '-1'), /inteiros/);
+assert.throws(() => parseQuestionCounts('1001', '3'), /1000/);
+const qs = summarizeQuestions([{ total: 20, correct: 14 }, { total: 10, correct: 6 }]);
+assert.deepEqual(qs, { total: 30, correct: 20, wrong: 10, rate: (20 / 30) * 100 });
+assert.equal(summarizeQuestions([]).rate, null);                                      // sem registros: Sem dados, não 0%
+assert.equal(formatPercent(summarizeQuestions([{ total: 5, correct: 0 }]).rate), '0%'); // 0 acertos com questões feitas é 0% real
 console.log('Todos os testes passaram.');

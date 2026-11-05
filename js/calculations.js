@@ -110,3 +110,25 @@ export function formatClock(ms) {
   const s = Math.floor(Math.max(0, ms) / 1000);
   return `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
 }
+
+// ---------- Questões ----------
+
+// Valida total e acertos digitados. Lança Error com mensagem em pt-BR se inválido.
+export function parseQuestionCounts(total, correct) {
+  if (total === '' || total == null) throw new Error('Informe o total de questões.');
+  if (correct === '' || correct == null) throw new Error('Informe o número de acertos (use 0 se errou todas).');
+  const t = Number(total);
+  const c = Number(correct);
+  if (!Number.isInteger(t) || !Number.isInteger(c) || t < 0 || c < 0) throw new Error('Use apenas números inteiros.');
+  if (t < 1) throw new Error('O total de questões deve ser pelo menos 1.');
+  if (t > 1000) throw new Error('O total por registro pode ter no máximo 1000 questões.');
+  if (c > t) throw new Error('Os acertos não podem ser maiores que o total de questões.');
+  return { total: t, correct: c, wrong: t - c };
+}
+
+// Soma uma lista de registros. rate é null ("Sem dados") quando não há questões.
+export function summarizeQuestions(rows) {
+  const total = rows.reduce((n, r) => n + (r.total || 0), 0);
+  const correct = rows.reduce((n, r) => n + (r.correct || 0), 0);
+  return { total, correct, wrong: total - correct, rate: hitRate(correct, total) };
+}
