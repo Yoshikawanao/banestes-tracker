@@ -1,0 +1,520 @@
+{
+  "estrutura": 1,
+  "meta": {
+    "fonte": "Anexo IV do Edital nº 01/2026 (Banestes), cargo TB - Técnico Bancário",
+    "edital": "Edital nº 01/2026",
+    "retificacoes": [
+      "Retificação de 23/10/2026 (Edital nº 03/2026) - não conferida; conteúdo programático segue o edital de abertura"
+    ],
+    "dataPublicacao": "2026-10-14 (data constante no edital; confirmar a data de publicação oficial)",
+    "ultimaConferencia": "2026-11-04 (conteúdo conferido com o PDF do edital; retificação de 23/10/2026 não conferida diretamente)",
+    "versaoConteudo": "1 (edital de abertura)"
+  },
+  "disciplines": [
+    {
+      "id": "lp",
+      "name": "Língua Portuguesa",
+      "block": "gerais",
+      "questions": 10,
+      "topics": [
+        {
+          "id": "lp-01",
+          "title": "Ortografia e acentuação"
+        },
+        {
+          "id": "lp-02",
+          "title": "Emprego do sinal indicativo de crase"
+        },
+        {
+          "id": "lp-03",
+          "title": "Compreensão e interpretação de textos de gêneros variados"
+        },
+        {
+          "id": "lp-04",
+          "title": "Relação do texto com seu contexto histórico"
+        },
+        {
+          "id": "lp-05",
+          "title": "Denotação e conotação"
+        },
+        {
+          "id": "lp-06",
+          "title": "Discurso direto, discurso indireto e discurso indireto livre"
+        },
+        {
+          "id": "lp-07",
+          "title": "Intertextualidade"
+        },
+        {
+          "id": "lp-08",
+          "title": "Figuras de linguagem"
+        },
+        {
+          "id": "lp-09",
+          "title": "Morfossintaxe"
+        },
+        {
+          "id": "lp-10",
+          "title": "Elementos estruturais e processos de formação de palavras"
+        },
+        {
+          "id": "lp-11",
+          "title": "Sinonímia e antonímia"
+        },
+        {
+          "id": "lp-12",
+          "title": "Pontuação"
+        },
+        {
+          "id": "lp-13",
+          "title": "Pronomes"
+        },
+        {
+          "id": "lp-14",
+          "title": "Concordância nominal e concordância verbal"
+        },
+        {
+          "id": "lp-15",
+          "title": "Flexão nominal e flexão verbal"
+        },
+        {
+          "id": "lp-16",
+          "title": "Vozes do verbo"
+        },
+        {
+          "id": "lp-17",
+          "title": "Correlação de tempos e modos verbais"
+        },
+        {
+          "id": "lp-18",
+          "title": "Regência nominal e regência verbal"
+        },
+        {
+          "id": "lp-19",
+          "title": "Coordenação e subordinação"
+        },
+        {
+          "id": "lp-20",
+          "title": "Conectivos"
+        },
+        {
+          "id": "lp-21",
+          "title": "Redação (confronto e reconhecimento de frases corretas e incorretas; organização e reorganização de orações e períodos; equivalência e transformação de estruturas)"
+        }
+      ]
+    },
+    {
+      "id": "mrlq",
+      "name": "Matemática/Raciocínio Lógico e Quantitativo",
+      "block": "gerais",
+      "questions": 10,
+      "topics": [
+        {
+          "id": "mrlq-01",
+          "title": "Estrutura lógica de relações arbitrárias entre pessoas, lugares, objetos ou eventos fictícios; deduzir novas informações das relações fornecidas e avaliar as condições usadas para estabelecer a estrutura daquelas relações"
+        },
+        {
+          "id": "mrlq-02",
+          "title": "Compreensão e elaboração da lógica das situações por meio de: raciocínio verbal, raciocínio matemático, raciocínio sequencial, orientação espacial e temporal, formação de conceitos, discriminação de elementos"
+        },
+        {
+          "id": "mrlq-03",
+          "title": "Compreensão do processo lógico que, a partir de um conjunto de hipóteses, conduz, de forma válida, a conclusões determinadas"
+        },
+        {
+          "id": "mrlq-04",
+          "title": "Números inteiros e racionais: operações (adição, subtração, multiplicação, divisão, potenciação); expressões numéricas; múltiplos e divisores de números naturais; problemas"
+        },
+        {
+          "id": "mrlq-05",
+          "title": "Frações e operações com frações"
+        },
+        {
+          "id": "mrlq-06",
+          "title": "Números e grandezas proporcionais: razões e proporções; divisão em partes proporcionais; regra de três; porcentagem e problemas envolvendo regra de três simples, cálculos de porcentagem, acréscimos e descontos"
+        },
+        {
+          "id": "mrlq-07",
+          "title": "Noções de Estatística: medidas de tendência central (moda, mediana, média aritmética simples e ponderada) e de dispersão (desvio médio, amplitude, variância, desvio padrão); leitura e interpretação de gráficos (histogramas, setores, infográficos) e tabelas"
+        },
+        {
+          "id": "mrlq-08",
+          "title": "Contagem: princípio multiplicativo e aditivo, permutações e combinações simples"
+        }
+      ]
+    },
+    {
+      "id": "amf",
+      "name": "Atualidades do Mercado Financeiro",
+      "block": "gerais",
+      "questions": 5,
+      "topics": [
+        {
+          "id": "amf-01",
+          "title": "Sistema Financeiro Nacional: estrutura, órgãos normativos, supervisores e operadores"
+        },
+        {
+          "id": "amf-02",
+          "title": "Política monetária, Comitê de Política Monetária (Copom) do Banco Central do Brasil, taxa Selic, inflação, taxas de juros e seus impactos na economia"
+        },
+        {
+          "id": "amf-03",
+          "title": "Mercado financeiro e de capitais: conceitos, produtos, serviços e principais indicadores"
+        },
+        {
+          "id": "amf-04",
+          "title": "Open Finance, Pix, moedas digitais, inovação e transformação digital no sistema financeiro"
+        },
+        {
+          "id": "amf-05",
+          "title": "Fintechs, bancos digitais, instituições de pagamento e tendências do setor bancário"
+        },
+        {
+          "id": "amf-06",
+          "title": "Educação financeira, inclusão financeira e proteção do consumidor financeiro"
+        },
+        {
+          "id": "amf-07",
+          "title": "Sustentabilidade, finanças sustentáveis e ESG no mercado financeiro"
+        },
+        {
+          "id": "amf-08",
+          "title": "Cenários econômico e geopolítico nacional e internacional e seus reflexos no sistema financeiro"
+        },
+        {
+          "id": "amf-09",
+          "title": "Atualidades e tendências do mercado financeiro brasileiro"
+        }
+      ]
+    },
+    {
+      "id": "ecesg",
+      "name": "Ética, Compliance e ESG",
+      "block": "gerais",
+      "questions": 5,
+      "topics": [
+        {
+          "id": "ecesg-01",
+          "title": "Ética e moral: conceitos, princípios e aplicação no ambiente organizacional"
+        },
+        {
+          "id": "ecesg-02",
+          "title": "Ética no serviço público e nas instituições financeiras"
+        },
+        {
+          "id": "ecesg-03",
+          "title": "Integridade, transparência, responsabilidade e conflitos de interesse"
+        },
+        {
+          "id": "ecesg-04",
+          "title": "Governança corporativa: conceitos, princípios e boas práticas"
+        },
+        {
+          "id": "ecesg-05",
+          "title": "Compliance: conceito, objetivos, controles internos, gestão de riscos, canais de denúncia e programas de integridade"
+        },
+        {
+          "id": "ecesg-06",
+          "title": "Prevenção e combate à corrupção, fraudes e lavagem de dinheiro"
+        },
+        {
+          "id": "ecesg-07",
+          "title": "Proteção de dados pessoais e privacidade"
+        },
+        {
+          "id": "ecesg-08",
+          "title": "Noções da Lei Geral de Proteção de Dados Pessoais (LGPD)"
+        },
+        {
+          "id": "ecesg-09",
+          "title": "ESG (Environmental, Social and Governance): conceitos, fundamentos e aplicação nas organizações"
+        },
+        {
+          "id": "ecesg-10",
+          "title": "Sustentabilidade e responsabilidade socioambiental corporativa"
+        },
+        {
+          "id": "ecesg-11",
+          "title": "Aspectos ambientais, sociais e de governança (ESG) aplicados ao setor financeiro"
+        },
+        {
+          "id": "ecesg-12",
+          "title": "Desenvolvimento sustentável, Agenda 2030 e Objetivos de Desenvolvimento Sustentável (ODS)"
+        },
+        {
+          "id": "ecesg-13",
+          "title": "Guia de Conduta Ética do Banestes"
+        }
+      ]
+    },
+    {
+      "id": "cb",
+      "name": "Conhecimentos Bancários",
+      "block": "especificos",
+      "questions": 15,
+      "topics": [
+        {
+          "id": "cb-01",
+          "title": "Sistema Financeiro Nacional: estrutura, órgãos normativos, supervisores e operadores"
+        },
+        {
+          "id": "cb-02",
+          "title": "Instituições financeiras e Instituições de Pagamento: conceitos, tipos, funções e operações"
+        },
+        {
+          "id": "cb-03",
+          "title": "Produtos e serviços bancários: contas, meios de pagamento, crédito, investimentos, cartões e canais de atendimento"
+        },
+        {
+          "id": "cb-04",
+          "title": "Captação, intermediação e aplicação de recursos financeiros"
+        },
+        {
+          "id": "cb-05",
+          "title": "Mercado financeiro e de capitais: conceitos básicos e principais instrumentos"
+        },
+        {
+          "id": "cb-06",
+          "title": "Política monetária, Comitê de Política Monetária (Copom) do Banco Central do Brasil, taxas de juros, inflação e indicadores econômicos"
+        },
+        {
+          "id": "cb-07",
+          "title": "Open Finance, Pix, meios eletrônicos de pagamento e inovação no sistema financeiro"
+        },
+        {
+          "id": "cb-08",
+          "title": "Prevenção à lavagem de dinheiro e ao financiamento do terrorismo"
+        },
+        {
+          "id": "cb-09",
+          "title": "Conselho de Controle de Atividades Financeiras (COAF)"
+        },
+        {
+          "id": "cb-10",
+          "title": "Educação financeira e proteção do consumidor de produtos e serviços financeiros"
+        },
+        {
+          "id": "cb-11",
+          "title": "Noções de seguros: conceitos, princípios, participantes e modalidades de seguros pessoais e empresariais"
+        },
+        {
+          "id": "cb-12",
+          "title": "Previdência complementar aberta: conceitos, características e modalidades"
+        },
+        {
+          "id": "cb-13",
+          "title": "Títulos de capitalização: conceitos, características e funcionamento"
+        },
+        {
+          "id": "cb-14",
+          "title": "Produtos bancassurance: integração entre serviços bancários, seguros, previdência e capitalização"
+        },
+        {
+          "id": "cb-15",
+          "title": "Consórcio"
+        },
+        {
+          "id": "cb-16",
+          "title": "Regulação e supervisão dos mercados financeiro e securitário"
+        },
+        {
+          "id": "cb-17",
+          "title": "Atendimento, comercialização e adequação de produtos financeiros e securitários ao perfil do cliente"
+        },
+        {
+          "id": "cb-18",
+          "title": "Portabilidade"
+        },
+        {
+          "id": "cb-19",
+          "title": "Resolução CMN nº 4.966/2021"
+        }
+      ],
+      "nomeNoEdital": "CONHECIMENTOS BANCÁRIO/SECURITÁRIOS"
+    },
+    {
+      "id": "mf",
+      "name": "Matemática Financeira",
+      "block": "especificos",
+      "questions": 5,
+      "topics": [
+        {
+          "id": "mf-01",
+          "title": "Razão, proporção, porcentagem e variação percentual"
+        },
+        {
+          "id": "mf-02",
+          "title": "Juros simples e juros compostos"
+        },
+        {
+          "id": "mf-03",
+          "title": "Taxas de juros: nominal, efetiva, proporcional, equivalente e real"
+        },
+        {
+          "id": "mf-04",
+          "title": "Capitalização e desconto simples e composto"
+        },
+        {
+          "id": "mf-05",
+          "title": "Valor presente e valor futuro"
+        },
+        {
+          "id": "mf-06",
+          "title": "Séries de pagamentos (anuidades) e sistemas de amortização"
+        },
+        {
+          "id": "mf-07",
+          "title": "Fluxo de caixa e equivalência de capitais"
+        },
+        {
+          "id": "mf-08",
+          "title": "Cálculo financeiro aplicado a operações de crédito e investimentos"
+        },
+        {
+          "id": "mf-09",
+          "title": "Análise de financiamentos e empréstimos"
+        },
+        {
+          "id": "mf-10",
+          "title": "Matemática financeira aplicada ao mercado financeiro e bancário"
+        }
+      ]
+    },
+    {
+      "id": "pe",
+      "name": "Noções de Probabilidade e Estatística",
+      "block": "especificos",
+      "questions": 5,
+      "topics": [
+        {
+          "id": "pe-01",
+          "title": "Conceitos básicos de estatística e análise de dados"
+        },
+        {
+          "id": "pe-02",
+          "title": "População, amostra e técnicas de amostragem"
+        },
+        {
+          "id": "pe-03",
+          "title": "Organização, representação e interpretação de dados em tabelas e gráficos"
+        },
+        {
+          "id": "pe-04",
+          "title": "Medidas de tendência central: média, mediana e moda"
+        },
+        {
+          "id": "pe-05",
+          "title": "Medidas de dispersão: amplitude, variância, desvio padrão e coeficiente de variação"
+        },
+        {
+          "id": "pe-06",
+          "title": "Probabilidade: conceitos fundamentais, eventos, espaço amostral e cálculo de probabilidades"
+        },
+        {
+          "id": "pe-07",
+          "title": "Probabilidade condicional e independência de eventos"
+        },
+        {
+          "id": "pe-08",
+          "title": "Distribuições de frequência e distribuição normal"
+        },
+        {
+          "id": "pe-09",
+          "title": "Análise e interpretação de indicadores estatísticos"
+        },
+        {
+          "id": "pe-10",
+          "title": "Aplicações de probabilidade e estatística em contextos financeiros, econômicos e organizacionais"
+        }
+      ]
+    },
+    {
+      "id": "inf",
+      "name": "Noções de Informática e Comportamentos Digitais",
+      "block": "especificos",
+      "questions": 5,
+      "topics": [
+        {
+          "id": "inf-01",
+          "title": "Lei Geral de Proteção de Dados Pessoais (LGPD): fundamentos, conceitos, princípios, bases legais, direitos dos titulares, tratamento de dados sensíveis, agentes de tratamento, encarregado, segurança, boas práticas, responsabilidade e sanções"
+        },
+        {
+          "id": "inf-02",
+          "title": "Aplicações da LGPD ao setor bancário: cadastro de clientes, análise de crédito, prevenção à fraude, compartilhamento de dados, proteção do crédito e decisões automatizadas"
+        },
+        {
+          "id": "inf-03",
+          "title": "Noções de Informática, Google Workspace e segurança digital: conceitos básicos de informática, hardware, software, sistemas operacionais (Windows e Linux básico, em suas últimas versões), internet, intranet, navegadores, mecanismos de busca, correio eletrônico, computação em nuvem, redes de computadores, aplicativos de escritório, ferramentas de colaboração digital, segurança da informação, senhas, autenticação, vírus, malware, phishing, engenharia social, privacidade, proteção de dados e boas práticas de uso corporativo"
+        },
+        {
+          "id": "inf-04",
+          "title": "Google Workspace: Gmail, Drive, Docs, Sheets, Slides, Forms, Calendar, Meet e Chat"
+        },
+        {
+          "id": "inf-05",
+          "title": "Inteligência Artificial e novas tecnologias: conceitos básicos de inteligência artificial, aprendizado de máquina, IA generativa, automação, chatbots, processamento de linguagem natural, Gemini no Google Workspace, aplicações bancárias da IA, análise de crédito, prevenção à fraude, atendimento ao cliente, riscos, vieses, explicabilidade, governança, segurança da informação, LGPD e decisões automatizadas"
+        }
+      ]
+    },
+    {
+      "id": "vna",
+      "name": "Vendas, Negociação e Atendimento",
+      "block": "especificos",
+      "questions": 10,
+      "topics": [
+        {
+          "id": "vna-01",
+          "title": "Atendimento ao cliente: conceitos, princípios, qualidade, excelência e satisfação do cliente"
+        },
+        {
+          "id": "vna-02",
+          "title": "Comunicação interpessoal, relacionamento com clientes e técnicas de atendimento presencial e digital"
+        },
+        {
+          "id": "vna-03",
+          "title": "Perfil, necessidades e comportamento do consumidor de produtos e serviços financeiros"
+        },
+        {
+          "id": "vna-04",
+          "title": "Técnicas de vendas e pós-venda"
+        },
+        {
+          "id": "vna-05",
+          "title": "Prospecção, fidelização e retenção de clientes"
+        },
+        {
+          "id": "vna-06",
+          "title": "Negociação: conceitos, etapas, estratégias e técnicas de negociação"
+        },
+        {
+          "id": "vna-07",
+          "title": "Gestão do relacionamento com clientes (CRM)"
+        },
+        {
+          "id": "vna-08",
+          "title": "Marketing de relacionamento e experiência do cliente"
+        },
+        {
+          "id": "vna-09",
+          "title": "Produtos e serviços bancários: características, benefícios e adequação ao perfil do cliente"
+        },
+        {
+          "id": "vna-10",
+          "title": "Ética, transparência e responsabilidade no atendimento e na oferta de produtos e serviços financeiros"
+        },
+        {
+          "id": "vna-11",
+          "title": "Resolução de conflitos, tratamento de reclamações e mediação de situações de atendimento"
+        },
+        {
+          "id": "vna-12",
+          "title": "Canais de atendimento e transformação digital no setor bancário"
+        },
+        {
+          "id": "vna-13",
+          "title": "Educação financeira e orientação ao cliente na utilização de produtos e serviços financeiros"
+        }
+      ]
+    }
+  ]
+}
