@@ -4,7 +4,7 @@ import { initializeApp } from "firebase/app";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyCRBZIAEvEwSKnHZMM51xBwrJd6BDwZMtA",
   authDomain: "estudo-tracker-de35a.firebaseapp.com",
   projectId: "estudo-tracker-de35a",
