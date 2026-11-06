@@ -79,7 +79,7 @@ export function renderDashboard(root, ctx) {
 
   const calBox = h('div', { class: 'card' });
 
-  root.replaceChildren(
+  root.replaceChildren(...[
     h('div', { class: 'page-head' }, h('h1', {}, 'Início'), h('p', {}, 'Resumo da preparação. Só aparecem números reais.')),
     ctx.timer && h('a', { class: 'notice', href: '#/estudos' }, ctx.timer.status === 'running' ? '● Sessão em andamento. Toque para abrir o cronômetro.' : '❚❚ Sessão pausada. Toque para abrir o cronômetro.'),
     h('div', { class: 'grid' },
@@ -106,6 +106,7 @@ export function renderDashboard(root, ctx) {
     h('div', { class: 'section' }, h('h2', {}, 'Sessões recentes'), recentList,
       has ? h('p', {}, h('a', { href: '#/estudos' }, 'Ver todo o histórico')) : null),
     h('div', { class: 'section' }, h('h2', {}, 'Revisões e sugestões'),
-      h('div', { class: 'empty' }, 'Revisões pendentes (Etapa 9) e sugestões de estudo com justificativa (Etapa 10) vão aparecer aqui.')));
+      h('div', { class: 'empty' }, 'Revisões pendentes (Etapa 9) e sugestões de estudo com justificativa (Etapa 10) vão aparecer aqui.'))
+  ].filter(Boolean));
   renderCalendar(calBox, ctx);
 }

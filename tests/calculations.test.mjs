@@ -5,6 +5,7 @@ import { toLocalDateKey, formatDateBR, parseDuration, formatDuration, sumMinutes
 import { elapsedMs, pauseTimer, resumeTimer, msToMinutes, formatClock } from '../js/calculations.js';
 import { parseQuestionCounts, summarizeQuestions } from '../js/calculations.js';
 import { monthRange, lastNWeeks, minutesByDay, intensityLevel, monthMatrix, shiftMonth, averagePerStudyDay, minutesByKey, weeklyHitRates } from '../js/calculations.js';
+import { MIN_SAMPLE, ATTENTION_RATE, addDays, periodRange, comparisonRanges, groupQuestions, sampleStatus, marginOfError, rateDifference, formatPoints, formatMargin } from '../js/calculations.js';
 
 const tree = [
   { id: 'a', title: 'A', children: [{ id: 'a1', title: 'A1' }, { id: 'a2', title: 'A2' }] },
@@ -120,4 +121,32 @@ assert.equal(byDisc.get('a'), 30); assert.equal(byDisc.get('b'), 5);
 const wr = weeklyHitRates([{ date: '2026-11-03', total: 10, correct: 7 }, { date: '2026-10-28', total: 5, correct: 5 }], [['2026-10-26', '2026-11-01'], ['2026-11-02', '2026-11-08'], ['2026-11-09', '2026-11-15']]);
 assert.equal(wr[0].rate, 100); assert.equal(wr[1].rate, 70); assert.equal(wr[1].total, 10);
 assert.equal(wr[2].rate, null);                                                    // semana sem questões: Sem dados
+
+// ---------- Análise de desempenho ----------
+assert.equal(addDays('2026-11-05', -6), '2026-10-30');
+assert.equal(addDays('2026-03-01', -1), '2026-02-28');
+assert.deepEqual(periodRange('all', '2026-11-05'), [null, null]);
+assert.deepEqual(periodRange('7d', '2026-11-05'), ['2026-10-30', '2026-11-05']);   // 7 dias incluindo hoje
+assert.deepEqual(periodRange('30d', '2026-11-05'), ['2026-10-07', '2026-11-05']);
+assert.deepEqual(periodRange('month', '2026-11-05'), ['2026-11-01', '2026-11-05']);
+assert.deepEqual(comparisonRanges('7d', '2026-11-05'), { current: ['2026-10-30', '2026-11-05'], previous: ['2026-10-23', '2026-10-29'] });
+assert.deepEqual(comparisonRanges('30d', '2026-11-05'), { current: ['2026-10-07', '2026-11-05'], previous: ['2026-09-07', '2026-10-06'] });
+assert.deepEqual(comparisonRanges('month', '2026-11-05'), { current: ['2026-11-01', '2026-11-05'], previous: ['2026-10-01', '2026-10-05'] });
+assert.deepEqual(comparisonRanges('month', '2026-03-31'), { current: ['2026-03-01', '2026-03-31'], previous: ['2026-02-01', '2026-02-28'] }); // fevereiro mais curto
+const g = groupQuestions([{ d: 'a', total: 10, correct: 5 }, { d: 'a', total: 10, correct: 9 }, { d: 'b', total: 4, correct: 4 }], r => r.d);
+assert.equal(g.get('a').total, 20); assert.equal(g.get('a').rate, 70); assert.equal(g.get('b').rate, 100);
+assert.equal(MIN_SAMPLE, 20); assert.equal(ATTENTION_RATE, 60);
+assert.equal(sampleStatus({ total: 0, rate: null }), 'sem_dados');
+assert.equal(sampleStatus({ total: 19, rate: 10 }), 'pequena');       // poucas questões: sem conclusão, mesmo com taxa baixa
+assert.equal(sampleStatus({ total: 20, rate: 59.9 }), 'atencao');
+assert.equal(sampleStatus({ total: 20, rate: 60 }), 'ok');
+assert.equal(marginOfError(0, 0), null);
+assert.ok(marginOfError(0, 10) > 0);                                  // não zera nos extremos
+assert.ok(marginOfError(70, 100) < marginOfError(7, 10));              // mais questões, menos incerteza
+assert.equal(rateDifference({ total: 0, rate: null }, { total: 30, rate: 70 }).diff, null);
+assert.deepEqual(rateDifference({ total: 30, rate: 80 }, { total: 25, rate: 70 }), { diff: 10, enough: true });
+assert.equal(rateDifference({ total: 30, rate: 80 }, { total: 5, rate: 60 }).enough, false);
+assert.equal(formatPoints(10), '+10,0 p.p.');
+assert.equal(formatPoints(-2.54), '-2,5 p.p.');
+assert.equal(formatMargin(9.04), '±9,0 p.p.');
 console.log('Todos os testes passaram.');

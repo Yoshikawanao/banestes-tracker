@@ -30,14 +30,15 @@ export function renderCalendar(box, ctx) {
   function drawDay() {
     const rows = ctx.sessions.filter(s => s.date === state.selected)
       .sort((a, b) => (b.createdAtMs ?? 0) - (a.createdAtMs ?? 0));
-    dayBox.replaceChildren(
+    dayBox.replaceChildren(...[
       h('h3', {}, `Sessões de ${formatDateBR(state.selected)}`),
       rows.length
         ? h('p', { class: 'muted' }, `${rows.length} sessão(ões), ${formatDuration(sumMinutes(rows))} no total.`)
         : h('p', { class: 'muted' }, 'Nenhuma sessão neste dia.'),
       rows.length ? h('ul', { class: 'cal-sessions' }, rows.map(s => h('li', {},
         h('strong', {}, formatDuration(s.minutes)), ` ${actLabel(s.activity)} em ${discName(s.disciplineId)}`,
-        s.notes && h('div', { class: 'muted' }, s.notes)))) : null);
+        s.notes && h('div', { class: 'muted' }, s.notes)))) : null
+    ].filter(Boolean));
   }
 
   function draw() {

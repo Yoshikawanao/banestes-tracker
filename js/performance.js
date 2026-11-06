@@ -3,8 +3,9 @@ import {
   flattenLeaves, formatDateBR, todayKey, parseQuestionCounts, summarizeQuestions, formatPercent
 } from './calculations.js';
 import { saveQuestion, deleteQuestion } from './storage.js';
+import { renderAnalysis } from './analysis.js';
 
-export function renderPerformance(root, ctx) {
+function renderRegistration(root, ctx) {
   const discs = ctx.edital.disciplines;
   const discName = id => discs.find(d => d.id === id)?.name ?? id;
   const topicsOf = id => flattenLeaves(discs.find(d => d.id === id)?.topics ?? []);
@@ -190,12 +191,30 @@ export function renderPerformance(root, ctx) {
   }
 
   root.replaceChildren(
-    h('div', { class: 'page-head' }, h('h1', {}, 'Desempenho'),
-      h('p', {}, 'Registre as questões que você resolveu e acompanhe o aproveitamento. Gráficos e comparações chegam na Etapa 7.')),
     formBox,
     h('div', { class: 'section' }, h('h2', {}, 'Histórico de questões'), filtersBox,
       h('div', { class: 'section-tight' }, summary), listEl));
   renderForm();
   renderFilters();
   renderList();
+}
+
+// Aba escolhida é lembrada enquanto o site está aberto. Sem registros, abre direto no formulário.
+let tab = null;
+
+export function renderPerformance(root, ctx) {
+  if (!tab) tab = ctx.questions.length ? 'analise' : 'registro';
+  const content = h('div');
+  const tabs = h('div', { class: 'tabs', role: 'tablist' });
+  const show = t => {
+    tab = t;
+    tabs.replaceChildren(...[['analise', 'Análise'], ['registro', 'Registrar questões']].map(([id, label]) =>
+      h('button', { type: 'button', role: 'tab', class: id === tab ? 'tab active' : 'tab', 'aria-selected': id === tab ? 'true' : 'false', onclick: () => show(id) }, label)));
+    (tab === 'analise' ? renderAnalysis : renderRegistration)(content, ctx);
+  };
+  root.replaceChildren(
+    h('div', { class: 'page-head' }, h('h1', {}, 'Desempenho'),
+      h('p', {}, 'Acompanhe seu aproveitamento nas questões e registre novos resultados.')),
+    tabs, content);
+  show(tab);
 }

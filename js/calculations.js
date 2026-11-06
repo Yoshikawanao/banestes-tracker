@@ -194,3 +194,67 @@ export function weeklyHitRates(questions, ranges) {
     return { from, to, ...summarizeQuestions(rows) };
   });
 }
+
+// ---------- Análise de desempenho ----------
+
+export const MIN_SAMPLE = 20;       // abaixo disso, mostramos os números mas não classificamos
+export const ATTENTION_RATE = 60;   // referência de atenção (a nota mínima do edital é 6,00)
+
+export function addDays(key, n) {
+  const d = keyToDate(key);
+  return toLocalDateKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n));
+}
+
+// Período de análise. 'all' devolve [null, null] (sem limite).
+export function periodRange(kind, today) {
+  if (kind === '7d') return [addDays(today, -6), today];
+  if (kind === '30d') return [addDays(today, -29), today];
+  if (kind === 'month') return [monthRange(today)[0], today];
+  return [null, null];
+}
+
+// Período atual e o período anterior equivalente, para comparação justa.
+export function comparisonRanges(kind, today) {
+  if (kind === '7d') return { current: [addDays(today, -6), today], previous: [addDays(today, -13), addDays(today, -7)] };
+  if (kind === '30d') return { current: [addDays(today, -29), today], previous: [addDays(today, -59), addDays(today, -30)] };
+  const [start] = monthRange(today);
+  const elapsed = Number(today.slice(8));
+  const prevStart = monthRange(addDays(start, -1))[0];
+  const prevMonthEnd = addDays(start, -1);
+  const prevEnd = addDays(prevStart, elapsed - 1);
+  return { current: [start, today], previous: [prevStart, prevEnd > prevMonthEnd ? prevMonthEnd : prevEnd] };
+}
+
+export function groupQuestions(rows, keyFn) {
+  const groups = new Map();
+  for (const r of rows) {
+    const k = keyFn(r);
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(r);
+  }
+  return new Map([...groups].map(([k, v]) => [k, summarizeQuestions(v)]));
+}
+
+// 'sem_dados' | 'pequena' | 'atencao' | 'ok'
+export function sampleStatus(s) {
+  if (!s.total) return 'sem_dados';
+  if (s.total < MIN_SAMPLE) return 'pequena';
+  return s.rate < ATTENTION_RATE ? 'atencao' : 'ok';
+}
+
+// Margem de erro aproximada (pontos percentuais, 95%), ajustada para não zerar em 0% ou 100%.
+export function marginOfError(correct, total) {
+  if (!total) return null;
+  const n = total + 4;
+  const p = (correct + 2) / n;
+  return 1.96 * Math.sqrt((p * (1 - p)) / n) * 100;
+}
+
+export function rateDifference(cur, prev) {
+  if (!cur.total || !prev.total) return { diff: null, enough: false };
+  return { diff: cur.rate - prev.rate, enough: cur.total >= MIN_SAMPLE && prev.total >= MIN_SAMPLE };
+}
+
+const nf1 = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+export const formatPoints = d => `${d > 0 ? '+' : ''}${nf1.format(d)} p.p.`;
+export const formatMargin = m => `±${nf1.format(m)} p.p.`;
