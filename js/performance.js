@@ -4,6 +4,7 @@ import {
 } from './calculations.js';
 import { saveQuestion, deleteQuestion } from './storage.js';
 import { renderAnalysis } from './analysis.js';
+import { renderSimulations } from './simulations.js';
 
 function renderRegistration(root, ctx) {
   const discs = ctx.edital.disciplines;
@@ -208,13 +209,13 @@ export function renderPerformance(root, ctx) {
   const tabs = h('div', { class: 'tabs', role: 'tablist' });
   const show = t => {
     tab = t;
-    tabs.replaceChildren(...[['analise', 'Análise'], ['registro', 'Registrar questões']].map(([id, label]) =>
+    tabs.replaceChildren(...[['analise', 'Análise'], ['registro', 'Registrar questões'], ['simulados', 'Simulados']].map(([id, label]) =>
       h('button', { type: 'button', role: 'tab', class: id === tab ? 'tab active' : 'tab', 'aria-selected': id === tab ? 'true' : 'false', onclick: () => show(id) }, label)));
-    (tab === 'analise' ? renderAnalysis : renderRegistration)(content, ctx);
+    ({ analise: renderAnalysis, registro: renderRegistration, simulados: renderSimulations })[tab](content, ctx);
   };
   root.replaceChildren(
     h('div', { class: 'page-head' }, h('h1', {}, 'Desempenho'),
-      h('p', {}, 'Acompanhe seu aproveitamento nas questões e registre novos resultados.')),
+      h('p', {}, 'Acompanhe seu aproveitamento, registre questões e simulados.')),
     tabs, content);
   show(tab);
 }

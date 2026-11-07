@@ -1,7 +1,7 @@
 import { h, statCard } from './ui.js';
 import {
   coverage, formatPercent, sumMinutes, distinctDays, formatDuration, weekRange, monthRange, todayKey,
-  sessionsInRange, summarizeQuestions, averagePerStudyDay, lastNWeeks, minutesByKey, weeklyHitRates, formatDateBR
+  sessionsInRange, summarizeQuestions, averagePerStudyDay, lastNWeeks, minutesByKey, weeklyHitRates, formatDateBR, simulationScores, formatGrade
 } from './calculations.js';
 import { barsVertical, barsHorizontal, stacked } from './charts.js';
 import { renderCalendar } from './calendar.js';
@@ -27,6 +27,9 @@ export function renderDashboard(root, ctx) {
   const [wFrom, wTo] = weekRange(today);
   const [mFrom, mTo] = monthRange(today);
   const avg = averagePerStudyDay(sessions);
+  const lastSim = [...(ctx.simulations || [])]
+    .sort((a, b) => b.date.localeCompare(a.date) || (b.createdAtMs ?? 0) - (a.createdAtMs ?? 0))
+    .map(s => ({ s, sc: simulationScores(s.results, discs, s.type) })).find(x => x.sc.final != null);
 
   // ---- gráficos ----
   const weeks = lastNWeeks(today, 8);
@@ -92,6 +95,8 @@ export function renderDashboard(root, ctx) {
       statCard('Teoria concluída', formatPercent(t.percent), sub(t)),
       statCard('Exercícios concluídos', formatPercent(e.percent), sub(e)),
       statCard('Revisões feitas', formatPercent(r.percent), sub(r)),
+      statCard('Última nota estimada', lastSim ? formatGrade(lastSim.sc.final) : 'Sem dados',
+        lastSim ? `${lastSim.s.name}, ${formatDateBR(lastSim.s.date)}${lastSim.sc.estimated ? ' (estimativa parcial)' : ''}` : 'Registre um simulado em Desempenho'),
       statCard('Taxa de acertos', formatPercent(q.rate), q.total ? `${q.correct} de ${q.total} questões` : 'Registre questões em Desempenho')),
 
     h('div', { class: 'section' }, h('h2', {}, 'Gráficos'),

@@ -6,6 +6,7 @@ import { elapsedMs, pauseTimer, resumeTimer, msToMinutes, formatClock } from '..
 import { parseQuestionCounts, summarizeQuestions } from '../js/calculations.js';
 import { monthRange, lastNWeeks, minutesByDay, intensityLevel, monthMatrix, shiftMonth, averagePerStudyDay, minutesByKey, weeklyHitRates } from '../js/calculations.js';
 import { MIN_SAMPLE, ATTENTION_RATE, addDays, periodRange, comparisonRanges, groupQuestions, sampleStatus, marginOfError, rateDifference, formatPoints, formatMargin } from '../js/calculations.js';
+import { MIN_GRADE, roundEdital, formatGrade, parseOptionalDuration, parseSimulationResults, simulationScores } from '../js/calculations.js';
 
 const tree = [
   { id: 'a', title: 'A', children: [{ id: 'a1', title: 'A1' }, { id: 'a2', title: 'A2' }] },
@@ -149,4 +150,46 @@ assert.equal(rateDifference({ total: 30, rate: 80 }, { total: 5, rate: 60 }).eno
 assert.equal(formatPoints(10), '+10,0 p.p.');
 assert.equal(formatPoints(-2.54), '-2,5 p.p.');
 assert.equal(formatMargin(9.04), '±9,0 p.p.');
+
+// ---------- Simulados ----------
+import fs from 'node:fs';
+const editalData = JSON.parse(fs.readFileSync(new URL('../data/edital.json', import.meta.url), 'utf8'));
+const DISCS = editalData.disciplines;
+assert.equal(DISCS.reduce((n, d) => n + d.questions, 0), 70);                       // distribuição oficial: 70 questões
+assert.equal(DISCS.filter(d => d.block === 'gerais').reduce((n, d) => n + d.questions, 0), 30);
+assert.equal(DISCS.filter(d => d.block === 'especificos').reduce((n, d) => n + d.questions, 0), 40);
+assert.equal(MIN_GRADE, 6);
+assert.equal(roundEdital(7.665), 7.67);       // terceira casa 5: para cima
+assert.equal(roundEdital(7.664), 7.66);
+assert.equal(roundEdital(6.995), 7);
+assert.equal(roundEdital(23 / 3), 7.67);
+assert.equal(roundEdital(6), 6);
+assert.equal(formatGrade(7.67), '7,67');
+assert.equal(formatGrade(6), '6,00');
+assert.equal(formatGrade(null), 'Sem dados');
+assert.equal(parseOptionalDuration('', ''), null);
+assert.equal(parseOptionalDuration('3', '30'), 210);
+assert.throws(() => parseOptionalDuration('0', '0'), /maior que zero/);
+
+// completo: Gerais 21/30 = 7,0 e Específicos 32/40 = 8,0 -> 7,67 (exemplo do roteiro)
+const full = { lp: 7, mrlq: 7, amf: 4, ecesg: 3, cb: 12, mf: 4, pe: 4, inf: 4, vna: 8 };               // gerais 21, específicos 32
+const inputsFull = Object.fromEntries(Object.entries(full).map(([k, v]) => [k, { correct: String(v) }]));
+const resFull = parseSimulationResults(DISCS, 'completo', inputsFull);
+assert.equal(resFull.cb.total, 15);                                                  // total fixo oficial
+const scFull = simulationScores(resFull, DISCS, 'completo');
+assert.equal(scFull.gerais.grade, 7); assert.equal(scFull.especificos.grade, 8);
+assert.equal(scFull.final, 7.67); assert.equal(scFull.estimated, false);
+assert.throws(() => parseSimulationResults(DISCS, 'completo', { ...inputsFull, lp: { correct: '11' } }), /não podem passar de 10/);
+assert.throws(() => parseSimulationResults(DISCS, 'completo', { ...inputsFull, cb: { correct: '' } }), /Conhecimentos Bancários/);
+assert.throws(() => parseSimulationResults(DISCS, 'completo', {}), /Informe os acertos/);
+
+// parcial: só Gerais -> sem nota final; os dois blocos -> estimativa
+const resG = parseSimulationResults(DISCS, 'parcial', { lp: { total: '10', correct: '5' } });
+const scG = simulationScores(resG, DISCS, 'parcial');
+assert.equal(scG.gerais.grade, 5); assert.equal(scG.final, null); assert.deepEqual(scG.missing, ['Conhecimentos Específicos']); assert.equal(scG.estimated, true);
+const resP = parseSimulationResults(DISCS, 'parcial', { lp: { total: '10', correct: '5' }, cb: { total: '10', correct: '8' } });
+assert.equal(simulationScores(resP, DISCS, 'parcial').final, 7);                     // (5 + 2*8) / 3
+assert.throws(() => parseSimulationResults(DISCS, 'parcial', {}), /ao menos uma disciplina/);
+assert.throws(() => parseSimulationResults(DISCS, 'parcial', { lp: { total: '10', correct: '12' } }), /Língua Portuguesa/);
+assert.throws(() => parseSimulationResults(DISCS, 'parcial', { lp: { total: '10', correct: '' } }), /acertos/);
 console.log('Todos os testes passaram.');

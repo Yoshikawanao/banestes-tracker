@@ -206,3 +206,19 @@ main:focus{outline:none}
 .note{font-size:.85rem;margin:.6rem 0 0}
 .section .form-grid{margin-bottom:.6rem}
 @media (min-width:900px){ .section .form-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)} }
+
+/* simulados */
+.method{margin-bottom:1rem}
+.method>summary{cursor:pointer;font-weight:600}
+.method .plain-list{margin-top:.7rem}
+.sim-table{display:grid;gap:.45rem;margin-top:1rem}
+.sim-row{display:grid;grid-template-columns:minmax(0,1fr) 5.5rem 5.5rem;gap:.6rem;align-items:center}
+.sim-row input{min-height:40px;padding:.4rem .6rem}
+.sim-head{font-size:.8rem;color:var(--muted)}
+.sim-name{font-size:.92rem}
+.sim-fixed{padding:.4rem .6rem;color:var(--muted)}
+.sim-block{margin-top:.5rem;font-weight:600;color:var(--muted);font-size:.95rem}
+.sim-details{margin-top:.2rem}
+.sim-details>summary{cursor:pointer;color:var(--muted);font-size:.9rem}
+.sim-details .plain-list{margin-top:.4rem;font-size:.9rem}
+@media (max-width:899px){ .sim-row{grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;gap:.4rem} }

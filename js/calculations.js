@@ -258,3 +258,66 @@ export function rateDifference(cur, prev) {
 const nf1 = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1, minimumFractionDigits: 1 });
 export const formatPoints = d => `${d > 0 ? '+' : ''}${nf1.format(d)} p.p.`;
 export const formatMargin = m => `±${nf1.format(m)} p.p.`;
+
+// ---------- Simulados ----------
+
+export const MIN_GRADE = 6; // nota mínima do edital (média ponderada)
+
+// Edital, item 14.2: duas casas decimais; terceira casa >= 5 arredonda para cima.
+export const roundEdital = x => Math.floor(x * 100 + 0.5 + 1e-9) / 100;
+
+const nf2 = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const formatGrade = x => (x == null ? 'Sem dados' : nf2.format(x));
+
+// Duração opcional: vazio vira null; preenchido segue as regras de parseDuration.
+export function parseOptionalDuration(hours, minutes) {
+  const blank = v => v === '' || v == null;
+  return blank(hours) && blank(minutes) ? null : parseDuration(hours, minutes);
+}
+
+// Valida os resultados digitados. discs: [{ id, name, block, questions }].
+// Completo: distribuição oficial (total fixo por disciplina, acertos obrigatórios em todas).
+// Parcial: só as disciplinas preenchidas, com total e acertos.
+export function parseSimulationResults(discs, type, inputs) {
+  const blank = v => v === '' || v == null;
+  const results = {};
+  for (const d of discs) {
+    const inp = inputs[d.id] || {};
+    if (type === 'completo') {
+      if (blank(inp.correct)) throw new Error(`Informe os acertos em ${d.name} (use 0 se errou todas).`);
+      const c = Number(inp.correct);
+      if (!Number.isInteger(c) || c < 0) throw new Error(`${d.name}: use apenas números inteiros.`);
+      if (c > d.questions) throw new Error(`${d.name}: os acertos não podem passar de ${d.questions}.`);
+      results[d.id] = { total: d.questions, correct: c };
+    } else {
+      if (blank(inp.total) && blank(inp.correct)) continue;
+      try {
+        const p = parseQuestionCounts(inp.total, inp.correct);
+        results[d.id] = { total: p.total, correct: p.correct };
+      } catch (e) { throw new Error(`${d.name}: ${e.message}`); }
+    }
+  }
+  if (!Object.keys(results).length) throw new Error('Preencha ao menos uma disciplina.');
+  return results;
+}
+
+// Notas por bloco (0 a 10) e nota final estimada. A nota final só existe com questões dos dois blocos.
+export function simulationScores(results, discs, type) {
+  const blocks = { gerais: { total: 0, correct: 0 }, especificos: { total: 0, correct: 0 } };
+  for (const d of discs) {
+    const r = results[d.id];
+    if (r && blocks[d.block]) { blocks[d.block].total += r.total; blocks[d.block].correct += r.correct; }
+  }
+  const grade = b => (b.total > 0 ? (b.correct / b.total) * 10 : null);
+  const g = grade(blocks.gerais);
+  const e = grade(blocks.especificos);
+  const raw = g != null && e != null ? finalGrade(g, e) : null;
+  const wrap = (b, v) => ({ ...b, grade: v == null ? null : roundEdital(v) });
+  return {
+    gerais: wrap(blocks.gerais, g),
+    especificos: wrap(blocks.especificos, e),
+    final: raw == null ? null : roundEdital(raw),
+    estimated: type !== 'completo',
+    missing: [g == null && 'Conhecimentos Gerais', e == null && 'Conhecimentos Específicos'].filter(Boolean)
+  };
+}

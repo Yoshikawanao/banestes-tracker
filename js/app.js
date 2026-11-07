@@ -2,7 +2,7 @@ import { h, toast } from './ui.js';
 import {
   configured, auth, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from './firebase.js';
-import { loadEditalProgress, loadSessions, loadTimer, loadQuestions } from './storage.js';
+import { loadEditalProgress, loadSessions, loadTimer, loadQuestions, loadSimulations } from './storage.js';
 import { renderDashboard } from './dashboard.js';
 import { renderEdital } from './edital.js';
 import { renderSessions } from './sessions.js';
@@ -10,7 +10,7 @@ import { renderPerformance } from './performance.js';
 import { stopTick } from './timer.js';
 
 const $ = id => document.getElementById(id);
-const ctx = { user: null, edital: null, progress: {}, sessions: [], timer: null, questions: [] };
+const ctx = { user: null, edital: null, progress: {}, sessions: [], timer: null, questions: [], simulations: [] };
 
 const PLACEHOLDERS = {
   revisoes: ['Revisões', 'Caderno de erros e flashcards chegam na Etapa 9.'],
@@ -50,6 +50,7 @@ async function enter(user) {
     ctx.sessions = await loadSessions(user.uid);
     ctx.timer = await loadTimer(user.uid);
     ctx.questions = await loadQuestions(user.uid);
+    ctx.simulations = await loadSimulations(user.uid);
   } catch (e) {
     console.error(e);
     toast('Erro ao carregar os dados. Verifique as regras do Firestore.', 'error');

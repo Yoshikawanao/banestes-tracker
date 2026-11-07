@@ -67,3 +67,22 @@ export async function saveQuestion(uid, record) {
 }
 
 export const deleteQuestion = (uid, id) => deleteDoc(doc(db, 'users', uid, 'questions', id));
+
+// ---- Simulados ----
+export async function loadSimulations(uid) {
+  const snap = await getDocs(collection(db, 'users', uid, 'simulations'));
+  return snap.docs.map(d => {
+    const { updatedAt, ...data } = d.data();
+    return { id: d.id, ...data };
+  });
+}
+
+// Cria (sem id) ou atualiza (com id). Retorna o id. set sem merge: os resultados são substituídos por inteiro.
+export async function saveSimulation(uid, sim) {
+  const { id, ...data } = sim;
+  const ref = id ? doc(db, 'users', uid, 'simulations', id) : doc(collection(db, 'users', uid, 'simulations'));
+  await setDoc(ref, { ...data, updatedAt: serverTimestamp() });
+  return ref.id;
+}
+
+export const deleteSimulation = (uid, id) => deleteDoc(doc(db, 'users', uid, 'simulations', id));
