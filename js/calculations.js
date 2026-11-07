@@ -397,3 +397,58 @@ export function validateMistakeInput({ date, disciplineId, statement, chosen, co
   if (chosen === correct) throw new Error('A resposta escolhida e a correta são iguais: isso não é um erro.');
   if (!reason) throw new Error('Selecione o motivo do erro.');
 }
+
+// ---------- Planejamento e metas ----------
+
+export const DAY_NAMES = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+
+// Horas digitadas (aceita decimais) -> minutos. Vazio = sem meta (null).
+export function parseHours(value, maxHours) {
+  if (value === '' || value == null) return null;
+  const h = Number(value);
+  if (!Number.isFinite(h) || h < 0) throw new Error('Informe um número válido de horas.');
+  if (h === 0) throw new Error('A meta deve ser maior que zero (deixe em branco para não ter meta).');
+  if (h > maxHours) throw new Error(`O máximo permitido é ${maxHours} horas.`);
+  return Math.round(h * 60);
+}
+
+export function parseCount(value, max) {
+  if (value === '' || value == null) return null;
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 1) throw new Error('Informe um número inteiro maior que zero (ou deixe em branco).');
+  if (n > max) throw new Error(`O máximo permitido é ${max}.`);
+  return n;
+}
+
+// As 7 datas (segunda a domingo) da semana que começa em weekStart.
+export const weekdayKeys = weekStart => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+
+// Valida o plano semanal. days: 7 listas de { disciplineId, minutes }. Blocos totalmente vazios são ignorados.
+export function parsePlan(days) {
+  const out = {};
+  days.forEach((blocks, i) => {
+    const list = [];
+    for (const b of blocks) {
+      const blankMin = b.minutes === '' || b.minutes == null;
+      if (!b.disciplineId && blankMin) continue;
+      if (!b.disciplineId) throw new Error(`${DAY_NAMES[i]}: selecione a disciplina do bloco.`);
+      const m = Number(b.minutes);
+      if (blankMin || !Number.isInteger(m) || m < 5) throw new Error(`${DAY_NAMES[i]}: informe os minutos do bloco (inteiro, no mínimo 5).`);
+      if (m > 720) throw new Error(`${DAY_NAMES[i]}: um bloco pode ter no máximo 720 minutos.`);
+      list.push({ disciplineId: b.disciplineId, minutes: m });
+    }
+    if (list.length > 10) throw new Error(`${DAY_NAMES[i]}: no máximo 10 blocos por dia.`);
+    if (list.reduce((n, b) => n + b.minutes, 0) > 1440) throw new Error(`${DAY_NAMES[i]}: o total do dia passa de 24 horas.`);
+    out[i] = list;
+  });
+  return out;
+}
+
+export const plannedDayMinutes = blocks => (blocks || []).reduce((n, b) => n + b.minutes, 0);
+
+// Minutos planejados por disciplina na semana (plano recorrente).
+export function plannedByDiscipline(planDays) {
+  const map = new Map();
+  for (const blocks of Object.values(planDays || {})) for (const b of blocks) map.set(b.disciplineId, (map.get(b.disciplineId) || 0) + b.minutes);
+  return map;
+}

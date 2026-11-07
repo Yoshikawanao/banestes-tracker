@@ -2,20 +2,17 @@ import { h, toast } from './ui.js';
 import {
   configured, auth, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from './firebase.js';
-import { loadEditalProgress, loadSessions, loadTimer, loadQuestions, loadSimulations, loadMistakes, loadFlashcards } from './storage.js';
+import { loadEditalProgress, loadSessions, loadTimer, loadQuestions, loadSimulations, loadMistakes, loadFlashcards, loadGoals, loadPlan } from './storage.js';
 import { renderDashboard } from './dashboard.js';
 import { renderEdital } from './edital.js';
 import { renderSessions } from './sessions.js';
 import { renderPerformance } from './performance.js';
 import { renderReviews } from './reviews.js';
+import { renderPlanning } from './planning.js';
 import { stopTick } from './timer.js';
 
 const $ = id => document.getElementById(id);
-const ctx = { user: null, edital: null, progress: {}, sessions: [], timer: null, questions: [], simulations: [], mistakes: [], flashcards: [] };
-
-const PLACEHOLDERS = {
-  planejamento: ['Planejamento', 'Metas e recomendações chegam na Etapa 10.']
-};
+const ctx = { user: null, edital: null, progress: {}, sessions: [], timer: null, questions: [], simulations: [], mistakes: [], flashcards: [], goals: {}, plan: { days: {} } };
 
 const ERRORS = {
   'auth/invalid-credential': 'E-mail ou senha incorretos.',
@@ -26,7 +23,7 @@ const ERRORS = {
 
 function route() {
   stopTick();
-  const name = (location.hash.replace(/^#\//, '') || 'dashboard').split('/')[0];
+  const [name, sub] = (location.hash.replace(/^#\//, '') || 'dashboard').split('/');
   const view = $('view');
   document.querySelectorAll('#nav a').forEach(a => {
     if (a.dataset.route === name) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
@@ -35,10 +32,8 @@ function route() {
   else if (name === 'estudos') renderSessions(view, ctx);
   else if (name === 'desempenho') renderPerformance(view, ctx);
   else if (name === 'revisoes') renderReviews(view, ctx);
-  else if (PLACEHOLDERS[name]) {
-    const [title, text] = PLACEHOLDERS[name];
-    view.replaceChildren(h('div', { class: 'page-head' }, h('h1', {}, title)), h('div', { class: 'empty' }, text));
-  } else renderDashboard(view, ctx);
+  else if (name === 'planejamento') renderPlanning(view, ctx, sub);
+  else renderDashboard(view, ctx);
   window.scrollTo(0, 0);
 }
 
@@ -54,6 +49,8 @@ async function enter(user) {
     ctx.simulations = await loadSimulations(user.uid);
     ctx.mistakes = await loadMistakes(user.uid);
     ctx.flashcards = await loadFlashcards(user.uid);
+    ctx.goals = await loadGoals(user.uid);
+    ctx.plan = await loadPlan(user.uid);
   } catch (e) {
     console.error(e);
     toast('Erro ao carregar os dados. Verifique as regras do Firestore.', 'error');

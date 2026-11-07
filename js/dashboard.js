@@ -1,8 +1,10 @@
 import { h, statCard } from './ui.js';
 import {
   coverage, formatPercent, sumMinutes, distinctDays, formatDuration, weekRange, monthRange, todayKey,
-  sessionsInRange, summarizeQuestions, averagePerStudyDay, lastNWeeks, minutesByKey, weeklyHitRates, formatDateBR, simulationScores, formatGrade, cardStatus
+  sessionsInRange, summarizeQuestions, averagePerStudyDay, lastNWeeks, minutesByKey, weeklyHitRates, formatDateBR, simulationScores, formatGrade, cardStatus, goalCompliance
 } from './calculations.js';
+import { buildRecommendations } from './recommendations.js';
+import { renderRecommendationsList } from './planning.js';
 import { barsVertical, barsHorizontal, stacked } from './charts.js';
 import { renderCalendar } from './calendar.js';
 import { actLabel } from './constants.js';
@@ -84,6 +86,12 @@ export function renderDashboard(root, ctx) {
   const mistakes = ctx.mistakes || [];
   const dueCards = cards.filter(c => cardStatus(c, today) === 'pendente').length;
   const pendingMistakes = mistakes.filter(m => m.status === 'pendente').length;
+  const goals = ctx.goals || {};
+  const goalWeekMin = sumMinutes(sessionsInRange(sessions, wFrom, wTo));
+  const goalWeekly = goals.weeklyMinutes
+    ? statCard('Meta semanal', formatPercent(goalCompliance(goalWeekMin, goals.weeklyMinutes)), `${formatDuration(goalWeekMin)} de ${formatDuration(goals.weeklyMinutes)}`)
+    : statCard('Meta semanal', 'Sem dados', 'Defina em Planejamento');
+  const recs = buildRecommendations({ discs, progress: ctx.progress, sessions, questions: ctx.questions, flashcards: cards, mistakes, goals, today });
   const calBox = h('div', { class: 'card' });
 
   root.replaceChildren(...[
@@ -95,7 +103,7 @@ export function renderDashboard(root, ctx) {
       statCard('Horas acumuladas', has ? formatDuration(sumMinutes(sessions)) : 'Sem dados'),
       statCard('Dias estudados', has ? String(distinctDays(sessions)) : 'Sem dados'),
       statCard('Média por dia estudado', avg == null ? 'Sem dados' : formatDuration(Math.round(avg)), avg == null ? null : 'Total dividido pelos dias com estudo'),
-      statCard('Meta semanal', 'Sem dados', 'Definida em Planejamento (Etapa 10)'),
+      goalWeekly,
       statCard('Teoria concluída', formatPercent(t.percent), sub(t)),
       statCard('Exercícios concluídos', formatPercent(e.percent), sub(e)),
       statCard('Revisões feitas', formatPercent(r.percent), sub(r)),
@@ -119,7 +127,10 @@ export function renderDashboard(root, ctx) {
         statCard('Flashcards para revisar', cards.length ? String(dueCards) : 'Sem dados', cards.length ? 'Vencem hoje ou estão atrasados' : 'Crie cartões em Revisões'),
         statCard('Erros a revisar', mistakes.length ? String(pendingMistakes) : 'Sem dados', mistakes.length ? 'No caderno de erros' : 'Registre erros em Revisões')),
       (dueCards || pendingMistakes) ? h('p', {}, h('a', { href: '#/revisoes' }, 'Abrir revisões')) : null,
-      h('div', { class: 'empty' }, 'Sugestões de estudo com justificativa chegam na Etapa 10.'))
+      null),
+    h('div', { class: 'section' }, h('h2', {}, 'O que priorizar'),
+      recs.length ? renderRecommendationsList(recs, 3) : h('div', { class: 'empty' }, 'Sem sugestões por enquanto. Elas aparecem conforme você registra estudos, questões e revisões.'),
+      recs.length > 3 ? h('p', {}, h('a', { href: '#/planejamento/recomendacoes' }, `Ver todas as ${recs.length} sugestões`)) : null)
   ].filter(Boolean));
   renderCalendar(calBox, ctx);
 }

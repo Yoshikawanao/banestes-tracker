@@ -154,6 +154,7 @@ assert.equal(formatMargin(9.04), '±9,0 p.p.');
 // ---------- Simulados ----------
 import fs from 'node:fs';
 import { NEW_CARD, scheduleCard, daysBetween, intervalLabel, cardStatus, dueLabel, countBy, validateCardInput, validateMistakeInput } from '../js/calculations.js';
+import { DAY_NAMES, parseHours, parseCount, weekdayKeys, parsePlan, plannedDayMinutes, plannedByDiscipline } from '../js/calculations.js';
 const editalData = JSON.parse(fs.readFileSync(new URL('../data/edital.json', import.meta.url), 'utf8'));
 const DISCS = editalData.disciplines;
 assert.equal(DISCS.reduce((n, d) => n + d.questions, 0), 70);                       // distribuição oficial: 70 questões
@@ -242,4 +243,32 @@ assert.throws(() => validateMistakeInput({ ...okM, date: '2026-11-06' }, T), /fu
 assert.throws(() => validateMistakeInput({ ...okM, statement: ' ' }, T), /enunciado/);
 assert.throws(() => validateMistakeInput({ ...okM, reason: '' }, T), /motivo/);
 assert.throws(() => validateMistakeInput({ ...okM, correct: '' }, T), /resposta correta/);
+
+// ---------- Planejamento e metas ----------
+assert.equal(DAY_NAMES.length, 7);
+assert.equal(parseHours('', 168), null);
+assert.equal(parseHours('10', 168), 600);
+assert.equal(parseHours('7.5', 168), 450);
+assert.throws(() => parseHours('0', 168), /maior que zero/);
+assert.throws(() => parseHours('-2', 168), /válido/);
+assert.throws(() => parseHours('abc', 168), /válido/);
+assert.throws(() => parseHours('200', 168), /máximo/);
+assert.equal(parseCount('', 5000), null); assert.equal(parseCount('50', 5000), 50);
+assert.throws(() => parseCount('0', 5000), /maior que zero/);
+assert.throws(() => parseCount('2.5', 5000), /inteiro/);
+assert.throws(() => parseCount('6000', 5000), /máximo/);
+assert.deepEqual(weekdayKeys('2026-11-02'), ['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08']);
+const empty7 = () => Array.from({ length: 7 }, () => []);
+const pd = empty7(); pd[0] = [{ disciplineId: 'lp', minutes: '60' }, { disciplineId: '', minutes: '' }]; pd[2] = [{ disciplineId: 'lp', minutes: 30 }, { disciplineId: 'mf', minutes: '45' }];
+const plan = parsePlan(pd);
+assert.deepEqual(plan[0], [{ disciplineId: 'lp', minutes: 60 }]);          // bloco vazio ignorado
+assert.equal(plannedDayMinutes(plan[2]), 75); assert.equal(plannedDayMinutes(plan[1]), 0);
+assert.equal(plannedByDiscipline(plan).get('lp'), 90); assert.equal(plannedByDiscipline(plan).get('mf'), 45);
+const bad = (mut, re) => { const d = empty7(); mut(d); assert.throws(() => parsePlan(d), re); };
+bad(d => { d[1] = [{ disciplineId: '', minutes: '30' }]; }, /Terça: selecione a disciplina/);
+bad(d => { d[3] = [{ disciplineId: 'lp', minutes: '' }]; }, /Quinta: informe os minutos/);
+bad(d => { d[4] = [{ disciplineId: 'lp', minutes: '3' }]; }, /no mínimo 5/);
+bad(d => { d[5] = [{ disciplineId: 'lp', minutes: '800' }]; }, /720/);
+bad(d => { d[6] = Array.from({ length: 11 }, () => ({ disciplineId: 'lp', minutes: 10 })); }, /10 blocos/);
+bad(d => { d[0] = [{ disciplineId: 'lp', minutes: 720 }, { disciplineId: 'mf', minutes: 720 }, { disciplineId: 'pe', minutes: 5 }]; }, /24 horas/);
 console.log('Todos os testes passaram.');

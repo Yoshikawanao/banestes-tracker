@@ -110,3 +110,20 @@ export const deleteMistake = (uid, id) => deleteDoc(doc(db, 'users', uid, 'mista
 export const loadFlashcards = uid => loadAll(uid, 'flashcards');
 export const saveFlashcard = (uid, c) => saveIn(uid, 'flashcards', c);
 export const deleteFlashcard = (uid, id) => deleteDoc(doc(db, 'users', uid, 'flashcards', id));
+
+// ---- Metas e plano semanal (um documento cada, em users/{uid}/settings) ----
+const settingRef = (uid, name) => doc(db, 'users', uid, 'settings', name);
+
+export async function loadGoals(uid) {
+  const snap = await getDoc(settingRef(uid, 'goals'));
+  if (!snap.exists()) return {};
+  const { updatedAt, ...data } = snap.data();
+  return data;
+}
+export const saveGoals = (uid, goals) => setDoc(settingRef(uid, 'goals'), { ...goals, updatedAt: serverTimestamp() });
+
+export async function loadPlan(uid) {
+  const snap = await getDoc(settingRef(uid, 'plan'));
+  return { days: snap.exists() ? (snap.data().days ?? {}) : {} };
+}
+export const savePlan = (uid, plan) => setDoc(settingRef(uid, 'plan'), { days: plan.days, updatedAt: serverTimestamp() });

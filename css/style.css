@@ -229,3 +229,14 @@ main:focus{outline:none}
 .rating-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
 .rating-row .btn{padding:.6rem .3rem;font-size:.9rem}
 @media (max-width:899px){ .rating-row{grid-template-columns:repeat(2,1fr)} }
+
+/* planejamento e recomendações */
+.recs{list-style:none;margin:.8rem 0 0;padding:0;display:grid;gap:.7rem;counter-reset:rec}
+.rec{counter-increment:rec;background:var(--card-2);border:1px solid var(--line);border-radius:var(--radius);padding:.8rem 1rem .8rem 3rem;position:relative}
+.rec::before{content:counter(rec);position:absolute;left:1rem;top:.8rem;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--green);color:#fff;font-weight:700;font-size:.85rem;display:grid;place-items:center}
+.rec p{margin:.2rem 0 .4rem;font-size:.92rem}
+.plan-day{margin-bottom:.7rem}
+.plan-day h3{margin-bottom:.5rem}
+.plan-row{display:grid;grid-template-columns:minmax(0,1fr) 5.5rem auto;gap:.5rem;margin-bottom:.5rem}
+.plan-row .btn,.plan-day>.btn{min-height:40px;padding:.3rem .8rem}
+@media (max-width:899px){ .plan-row{grid-template-columns:minmax(0,1fr) 4.6rem auto} }

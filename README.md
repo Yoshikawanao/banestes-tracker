@@ -44,6 +44,7 @@ Preencha também `meta` (data de publicação, última conferência e versão).
 
 ```
 node tests/calculations.test.mjs
+node tests/recommendations.test.mjs
 ```
 
 Veja `TASKS.md` para o andamento das etapas.
