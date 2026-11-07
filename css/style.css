@@ -222,3 +222,10 @@ main:focus{outline:none}
 .sim-details>summary{cursor:pointer;color:var(--muted);font-size:.9rem}
 .sim-details .plain-list{margin-top:.4rem;font-size:.9rem}
 @media (max-width:899px){ .sim-row{grid-template-columns:minmax(0,1fr) 4.2rem 4.2rem;gap:.4rem} }
+
+/* revisões */
+.fc-face{font-size:1.15rem;white-space:pre-wrap;word-break:break-word;background:var(--card-2);border:1px solid var(--line);border-radius:var(--radius);padding:1.2rem;margin:.8rem 0}
+.fc-back{border-color:var(--green)}
+.rating-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+.rating-row .btn{padding:.6rem .3rem;font-size:.9rem}
+@media (max-width:899px){ .rating-row{grid-template-columns:repeat(2,1fr)} }

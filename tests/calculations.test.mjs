@@ -153,6 +153,7 @@ assert.equal(formatMargin(9.04), '±9,0 p.p.');
 
 // ---------- Simulados ----------
 import fs from 'node:fs';
+import { NEW_CARD, scheduleCard, daysBetween, intervalLabel, cardStatus, dueLabel, countBy, validateCardInput, validateMistakeInput } from '../js/calculations.js';
 const editalData = JSON.parse(fs.readFileSync(new URL('../data/edital.json', import.meta.url), 'utf8'));
 const DISCS = editalData.disciplines;
 assert.equal(DISCS.reduce((n, d) => n + d.questions, 0), 70);                       // distribuição oficial: 70 questões
@@ -192,4 +193,53 @@ assert.equal(simulationScores(resP, DISCS, 'parcial').final, 7);                
 assert.throws(() => parseSimulationResults(DISCS, 'parcial', {}), /ao menos uma disciplina/);
 assert.throws(() => parseSimulationResults(DISCS, 'parcial', { lp: { total: '10', correct: '12' } }), /Língua Portuguesa/);
 assert.throws(() => parseSimulationResults(DISCS, 'parcial', { lp: { total: '10', correct: '' } }), /acertos/);
+
+// ---------- Revisões ----------
+const T = '2026-11-05';
+let card = { ...NEW_CARD, dueDate: T };
+card = { ...card, ...scheduleCard(card, 'bom', T) };
+assert.equal(card.intervalDays, 1); assert.equal(card.reps, 1); assert.equal(card.dueDate, '2026-11-06');
+card = { ...card, ...scheduleCard(card, 'bom', '2026-11-06') };
+assert.equal(card.intervalDays, 3); assert.equal(card.dueDate, '2026-11-09');
+card = { ...card, ...scheduleCard(card, 'bom', '2026-11-09') };
+assert.equal(card.intervalDays, 8);                                                  // 3 x 2,5 = 7,5 -> 8
+const lapsed = scheduleCard(card, 'errei', '2026-11-17');
+assert.equal(lapsed.intervalDays, 1); assert.equal(lapsed.reps, 0); assert.equal(lapsed.lapses, 1); assert.equal(lapsed.ease, 2.3);
+assert.equal(lapsed.dueDate, '2026-11-18');
+assert.equal(scheduleCard(NEW_CARD, 'facil', T).intervalDays, 3);
+assert.equal(scheduleCard(NEW_CARD, 'facil', T).ease, 2.65);
+assert.equal(scheduleCard(NEW_CARD, 'dificil', T).intervalDays, 1);
+assert.equal(scheduleCard({ ...NEW_CARD, reps: 3, intervalDays: 10 }, 'dificil', T).intervalDays, 12);
+assert.ok(scheduleCard({ ...NEW_CARD, reps: 3, intervalDays: 10 }, 'bom', T).intervalDays > 10);   // nunca encurta ao acertar
+assert.equal(scheduleCard({ ...NEW_CARD, reps: 5, intervalDays: 170, ease: 2.5 }, 'facil', T).intervalDays, 180); // teto
+let hard = { ...NEW_CARD }; for (let i = 0; i < 20; i++) hard = { ...hard, ...scheduleCard(hard, 'errei', T) };
+assert.equal(hard.ease, 1.3);                                                     // facilidade nunca cai abaixo de 1,3
+assert.throws(() => scheduleCard(NEW_CARD, 'xyz', T), /inválida/);
+assert.equal(daysBetween('2026-11-05', '2026-11-08'), 3);
+assert.equal(daysBetween('2026-11-05', '2026-11-04'), -1);
+assert.equal(daysBetween('2026-10-24', '2026-10-26'), 2);                          // virada do horário de verão não distorce
+assert.equal(intervalLabel(1), 'amanhã'); assert.equal(intervalLabel(8), '8 dias');
+assert.equal(intervalLabel(30), '1 mês'); assert.equal(intervalLabel(90), '3 meses');
+assert.equal(cardStatus({ dueDate: '2026-11-04' }, T), 'pendente');               // atrasado
+assert.equal(cardStatus({ dueDate: '2026-11-05' }, T), 'pendente');               // vence hoje
+assert.equal(cardStatus({ dueDate: '2026-11-08' }, T), 'proximo');
+assert.equal(cardStatus({ dueDate: '2026-11-09' }, T), 'futuro');
+assert.equal(dueLabel({ dueDate: '2026-11-03' }, T), 'Atrasado há 2 dias');
+assert.equal(dueLabel({ dueDate: '2026-11-04' }, T), 'Atrasado há 1 dia');
+assert.equal(dueLabel({ dueDate: '2026-11-05' }, T), 'Vence hoje');
+assert.equal(dueLabel({ dueDate: '2026-11-06' }, T), 'Vence amanhã');
+assert.equal(dueLabel({ dueDate: '2026-11-12' }, T), 'Vence em 7 dias');
+const cnt = countBy([{ r: 'a' }, { r: 'b' }, { r: 'a' }], x => x.r);
+assert.equal(cnt.get('a'), 2); assert.equal(cnt.get('b'), 1);
+assert.throws(() => validateCardInput({ disciplineId: '', front: 'p', back: 'r' }), /disciplina/);
+assert.throws(() => validateCardInput({ disciplineId: 'lp', front: '  ', back: 'r' }), /pergunta/);
+assert.throws(() => validateCardInput({ disciplineId: 'lp', front: 'p', back: '' }), /resposta/);
+validateCardInput({ disciplineId: 'lp', front: 'p', back: 'r' });
+const okM = { date: T, disciplineId: 'lp', statement: 'texto', chosen: 'A', correct: 'C', reason: 'desatencao' };
+validateMistakeInput(okM, T);
+assert.throws(() => validateMistakeInput({ ...okM, chosen: 'C' }, T), /não é um erro/);
+assert.throws(() => validateMistakeInput({ ...okM, date: '2026-11-06' }, T), /futura/);
+assert.throws(() => validateMistakeInput({ ...okM, statement: ' ' }, T), /enunciado/);
+assert.throws(() => validateMistakeInput({ ...okM, reason: '' }, T), /motivo/);
+assert.throws(() => validateMistakeInput({ ...okM, correct: '' }, T), /resposta correta/);
 console.log('Todos os testes passaram.');

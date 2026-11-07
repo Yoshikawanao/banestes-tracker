@@ -2,18 +2,18 @@ import { h, toast } from './ui.js';
 import {
   configured, auth, onAuthStateChanged, signInWithEmailAndPassword, signOut
 } from './firebase.js';
-import { loadEditalProgress, loadSessions, loadTimer, loadQuestions, loadSimulations } from './storage.js';
+import { loadEditalProgress, loadSessions, loadTimer, loadQuestions, loadSimulations, loadMistakes, loadFlashcards } from './storage.js';
 import { renderDashboard } from './dashboard.js';
 import { renderEdital } from './edital.js';
 import { renderSessions } from './sessions.js';
 import { renderPerformance } from './performance.js';
+import { renderReviews } from './reviews.js';
 import { stopTick } from './timer.js';
 
 const $ = id => document.getElementById(id);
-const ctx = { user: null, edital: null, progress: {}, sessions: [], timer: null, questions: [], simulations: [] };
+const ctx = { user: null, edital: null, progress: {}, sessions: [], timer: null, questions: [], simulations: [], mistakes: [], flashcards: [] };
 
 const PLACEHOLDERS = {
-  revisoes: ['Revisões', 'Caderno de erros e flashcards chegam na Etapa 9.'],
   planejamento: ['Planejamento', 'Metas e recomendações chegam na Etapa 10.']
 };
 
@@ -34,6 +34,7 @@ function route() {
   if (name === 'edital') renderEdital(view, ctx);
   else if (name === 'estudos') renderSessions(view, ctx);
   else if (name === 'desempenho') renderPerformance(view, ctx);
+  else if (name === 'revisoes') renderReviews(view, ctx);
   else if (PLACEHOLDERS[name]) {
     const [title, text] = PLACEHOLDERS[name];
     view.replaceChildren(h('div', { class: 'page-head' }, h('h1', {}, title)), h('div', { class: 'empty' }, text));
@@ -51,6 +52,8 @@ async function enter(user) {
     ctx.timer = await loadTimer(user.uid);
     ctx.questions = await loadQuestions(user.uid);
     ctx.simulations = await loadSimulations(user.uid);
+    ctx.mistakes = await loadMistakes(user.uid);
+    ctx.flashcards = await loadFlashcards(user.uid);
   } catch (e) {
     console.error(e);
     toast('Erro ao carregar os dados. Verifique as regras do Firestore.', 'error');

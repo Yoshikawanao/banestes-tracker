@@ -1,7 +1,7 @@
 import { h, statCard } from './ui.js';
 import {
   coverage, formatPercent, sumMinutes, distinctDays, formatDuration, weekRange, monthRange, todayKey,
-  sessionsInRange, summarizeQuestions, averagePerStudyDay, lastNWeeks, minutesByKey, weeklyHitRates, formatDateBR, simulationScores, formatGrade
+  sessionsInRange, summarizeQuestions, averagePerStudyDay, lastNWeeks, minutesByKey, weeklyHitRates, formatDateBR, simulationScores, formatGrade, cardStatus
 } from './calculations.js';
 import { barsVertical, barsHorizontal, stacked } from './charts.js';
 import { renderCalendar } from './calendar.js';
@@ -80,6 +80,10 @@ export function renderDashboard(root, ctx) {
           h('div', {}, discs.find(d => d.id === s.disciplineId)?.name ?? s.disciplineId)))))
     : h('div', { class: 'empty' }, 'Nenhuma sessão registrada ainda.');
 
+  const cards = ctx.flashcards || [];
+  const mistakes = ctx.mistakes || [];
+  const dueCards = cards.filter(c => cardStatus(c, today) === 'pendente').length;
+  const pendingMistakes = mistakes.filter(m => m.status === 'pendente').length;
   const calBox = h('div', { class: 'card' });
 
   root.replaceChildren(...[
@@ -110,8 +114,12 @@ export function renderDashboard(root, ctx) {
     h('div', { class: 'section' }, h('h2', {}, 'Calendário de consistência'), calBox),
     h('div', { class: 'section' }, h('h2', {}, 'Sessões recentes'), recentList,
       has ? h('p', {}, h('a', { href: '#/estudos' }, 'Ver todo o histórico')) : null),
-    h('div', { class: 'section' }, h('h2', {}, 'Revisões e sugestões'),
-      h('div', { class: 'empty' }, 'Revisões pendentes (Etapa 9) e sugestões de estudo com justificativa (Etapa 10) vão aparecer aqui.'))
+    h('div', { class: 'section' }, h('h2', {}, 'Revisões pendentes'),
+      h('div', { class: 'grid' },
+        statCard('Flashcards para revisar', cards.length ? String(dueCards) : 'Sem dados', cards.length ? 'Vencem hoje ou estão atrasados' : 'Crie cartões em Revisões'),
+        statCard('Erros a revisar', mistakes.length ? String(pendingMistakes) : 'Sem dados', mistakes.length ? 'No caderno de erros' : 'Registre erros em Revisões')),
+      (dueCards || pendingMistakes) ? h('p', {}, h('a', { href: '#/revisoes' }, 'Abrir revisões')) : null,
+      h('div', { class: 'empty' }, 'Sugestões de estudo com justificativa chegam na Etapa 10.'))
   ].filter(Boolean));
   renderCalendar(calBox, ctx);
 }

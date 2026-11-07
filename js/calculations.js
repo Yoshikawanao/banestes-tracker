@@ -321,3 +321,79 @@ export function simulationScores(results, discs, type) {
     missing: [g == null && 'Conhecimentos Gerais', e == null && 'Conhecimentos Específicos'].filter(Boolean)
   };
 }
+
+// ---------- Revisões: caderno de erros e flashcards ----------
+
+export const NEW_CARD = { ease: 2.5, reps: 0, lapses: 0, intervalDays: 0 };
+const MAX_INTERVAL = 180;
+const round2 = x => Math.round(x * 100) / 100;
+
+// Agendamento de revisão (inspirado no SM-2). rating: 'errei' | 'dificil' | 'bom' | 'facil'.
+// Retorna os novos campos do cartão; a data da próxima revisão é hoje + intervalo.
+export function scheduleCard(card, rating, today) {
+  const ease0 = card.ease ?? NEW_CARD.ease;
+  const reps0 = card.reps ?? 0;
+  const prev = card.intervalDays ?? 0;
+  let ease = ease0, reps = reps0, lapses = card.lapses ?? 0, interval;
+  if (rating === 'errei') {
+    reps = 0; lapses += 1; ease = Math.max(1.3, ease0 - 0.2); interval = 1;
+  } else if (rating === 'dificil') {
+    ease = Math.max(1.3, ease0 - 0.15); reps += 1;
+    interval = reps0 === 0 ? 1 : Math.max(prev + 1, Math.round(prev * 1.2));
+  } else if (rating === 'bom') {
+    reps += 1;
+    interval = reps0 === 0 ? 1 : reps0 === 1 ? 3 : Math.max(prev + 1, Math.round(prev * ease0));
+  } else if (rating === 'facil') {
+    ease = ease0 + 0.15; reps += 1;
+    interval = reps0 === 0 ? 3 : reps0 === 1 ? 6 : Math.max(prev + 1, Math.round(prev * ease0 * 1.3));
+  } else throw new Error('Avaliação inválida.');
+  interval = Math.min(MAX_INTERVAL, interval);
+  return { ease: round2(ease), reps, lapses, intervalDays: interval, dueDate: addDays(today, interval) };
+}
+
+export const daysBetween = (fromKey, toKey) => Math.round((keyToDate(toKey) - keyToDate(fromKey)) / 86400000);
+
+export function intervalLabel(days) {
+  if (days === 1) return 'amanhã';
+  if (days < 30) return `${days} dias`;
+  const m = Math.round(days / 30);
+  return m === 1 ? '1 mês' : `${m} meses`;
+}
+
+// 'pendente' (vence hoje ou atrasado) | 'proximo' (vence em 1 a 3 dias) | 'futuro'
+export function cardStatus(card, today) {
+  const d = daysBetween(today, card.dueDate);
+  return d <= 0 ? 'pendente' : d <= 3 ? 'proximo' : 'futuro';
+}
+
+export function dueLabel(card, today) {
+  const d = daysBetween(today, card.dueDate);
+  if (d < 0) return `Atrasado há ${-d} dia${d === -1 ? '' : 's'}`;
+  if (d === 0) return 'Vence hoje';
+  return d === 1 ? 'Vence amanhã' : `Vence em ${d} dias`;
+}
+
+export function countBy(rows, keyFn) {
+  const map = new Map();
+  for (const r of rows) { const k = keyFn(r); map.set(k, (map.get(k) || 0) + 1); }
+  return map;
+}
+
+export function validateCardInput({ disciplineId, front, back }) {
+  if (!disciplineId) throw new Error('Selecione a disciplina.');
+  if (!front.trim()) throw new Error('Escreva a pergunta.');
+  if (!back.trim()) throw new Error('Escreva a resposta.');
+  if (front.length > 1000 || back.length > 1000) throw new Error('Pergunta e resposta podem ter no máximo 1000 caracteres.');
+}
+
+export function validateMistakeInput({ date, disciplineId, statement, chosen, correct, reason }, today) {
+  if (!date) throw new Error('Informe a data.');
+  if (date > today) throw new Error('A data não pode ser futura.');
+  if (!disciplineId) throw new Error('Selecione a disciplina.');
+  if (!statement.trim()) throw new Error('Escreva o enunciado ou um resumo da questão.');
+  if (statement.length > 1500) throw new Error('O enunciado pode ter no máximo 1500 caracteres.');
+  if (!chosen) throw new Error('Selecione a resposta que você escolheu.');
+  if (!correct) throw new Error('Selecione a resposta correta.');
+  if (chosen === correct) throw new Error('A resposta escolhida e a correta são iguais: isso não é um erro.');
+  if (!reason) throw new Error('Selecione o motivo do erro.');
+}

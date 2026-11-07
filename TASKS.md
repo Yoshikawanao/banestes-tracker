@@ -7,7 +7,7 @@
 - [x] Etapa 5: registro de questões e taxa de acertos (validada)
 - [x] Etapa 6: dashboard completo e calendário de consistência (validada)
 - [x] Etapa 7: desempenho (sempre com tamanho da amostra) (validada)
-- [x] Etapa 8: simulados e nota estimada (G + 2×E) / 3 (aguardando validação)
-- [ ] Etapa 9: revisões (caderno de erros e flashcards)
+- [x] Etapa 8: simulados e nota estimada (G + 2×E) / 3 (validada)
+- [x] Etapa 9: revisões (caderno de erros e flashcards) (aguardando validação)
 - [ ] Etapa 10: planejamento, metas e recomendações com justificativa
 - [ ] Etapa 11: backup JSON, testes e polimento

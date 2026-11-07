@@ -86,3 +86,27 @@ export async function saveSimulation(uid, sim) {
 }
 
 export const deleteSimulation = (uid, id) => deleteDoc(doc(db, 'users', uid, 'simulations', id));
+
+// ---- Caderno de erros e flashcards ----
+async function loadAll(uid, name) {
+  const snap = await getDocs(collection(db, 'users', uid, name));
+  return snap.docs.map(d => {
+    const { updatedAt, ...data } = d.data();
+    return { id: d.id, ...data };
+  });
+}
+
+async function saveIn(uid, name, record) {
+  const { id, ...data } = record;
+  const ref = id ? doc(db, 'users', uid, name, id) : doc(collection(db, 'users', uid, name));
+  await setDoc(ref, { ...data, updatedAt: serverTimestamp() });
+  return ref.id;
+}
+
+export const loadMistakes = uid => loadAll(uid, 'mistakes');
+export const saveMistake = (uid, m) => saveIn(uid, 'mistakes', m);
+export const deleteMistake = (uid, id) => deleteDoc(doc(db, 'users', uid, 'mistakes', id));
+
+export const loadFlashcards = uid => loadAll(uid, 'flashcards');
+export const saveFlashcard = (uid, c) => saveIn(uid, 'flashcards', c);
+export const deleteFlashcard = (uid, id) => deleteDoc(doc(db, 'users', uid, 'flashcards', id));
